@@ -2,6 +2,7 @@
 
 var ray : Ray;
 var rayRendColor : Color;
+var rayLength : int;
 private var rayRend : LineRenderer;
 
 function Start () {
@@ -16,9 +17,5 @@ function Update () {
 	ray = new Ray (transform.position, transform.forward);
 	
 	rayRend.SetPosition(0, ray.origin);
-	rayRend.SetPosition(1, ray.origin + (transform.forward * 40));
-	
-	if (Physics.Raycast (transform.position, transform.forward, 40)) {
-        print ("There is something in front of the object!");
-    }
+	rayRend.SetPosition(1, ray.origin + (transform.forward * rayLength));
 }
