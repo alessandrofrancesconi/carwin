@@ -5,7 +5,11 @@ private var frontRightRay : Component;
 public var leftAngle : float;
 public var rightAngle : float;
 
-private enum CurveTypeEnum { STRAIGHT, LEFT, RIGHT };
+private enum CurveTypeEnum { 
+	STRAIGHT, 
+	LEFT, 
+	RIGHT
+};
 public var curveType;
 
 function Start () {

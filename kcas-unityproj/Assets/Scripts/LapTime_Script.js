@@ -38,7 +38,7 @@ function OnGUI () {
 		
 		var i : int = 2;
 		for (var lapTime : float in totalTimes) {
-			textTime = String.Format ("{0:00}:{1:00}:{2:000}", lapTime / 60, lapTime % 60, (lapTime * 100) % 100); 
+			textTime = (i-1) + ") " + String.Format ("{0:00}:{1:00}:{2:000}", lapTime / 60, lapTime % 60, (lapTime * 100) % 100); 
 			GUI.Label (Rect (Screen.width -190, 25*i, 100, 30), textTime);
 			i++;
 		}

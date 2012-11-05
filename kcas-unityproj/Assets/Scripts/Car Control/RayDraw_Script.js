@@ -9,8 +9,8 @@ function Start () {
 	rayRend = gameObject.AddComponent(LineRenderer);
 	rayRend.material.color = rayRendColor;
 	
-	rayRend.SetWidth(0.1f, 0.1f);	
 	rayRend.SetVertexCount(2);
+	rayRend.SetWidth(0.1f, 0.1f);
 }
 
 function Update () {
