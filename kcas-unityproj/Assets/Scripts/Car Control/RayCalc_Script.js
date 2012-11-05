@@ -5,6 +5,9 @@ private var frontRightRay : Component;
 public var leftAngle : float;
 public var rightAngle : float;
 
+private enum CurveTypeEnum { STRAIGHT, LEFT, RIGHT };
+public var curveType;
+
 function Start () {
 	frontLeftRay = transform.Find("FrontLeftRay");
 	frontRightRay = transform.Find("FrontRightRay");
@@ -23,11 +26,13 @@ function Update () {
 		// little right turn for stabilization 
 		leftAngle = 0.0f;
 		rightAngle = 5.0f;
+		curveType = CurveTypeEnum.RIGHT;
 	}
 	else if (!collisionLeft && collisionRight) {
 		// little left turn for stabilization 
 		leftAngle = 5.0f;
 		rightAngle = 0.0f;
+		curveType = CurveTypeEnum.LEFT;
 	}
 	else if (collisionLeft && collisionRight) {
 		// calc the steering direction
@@ -41,18 +46,19 @@ function Update () {
 			// Left turn
 			leftAngle = (curveAngle - 180)*(-1);
 			rightAngle = 0.0f;
-			//print("Curva a SINISTRA a " + leftAngle);
+			curveType = CurveTypeEnum.LEFT;
 		}
 		else {
 			// Right turn
 			rightAngle = curveAngle;
 			leftAngle = 0.0f;
-			//print("Curva a DESTRA a " + rightAngle);
+			curveType = CurveTypeEnum.RIGHT;
 		}
 	}
 	else {
 		// no collisions, go straight
 		leftAngle = 0.0f;
 		rightAngle = 0.0f;
+		curveType = CurveTypeEnum.STRAIGHT;
 	}
 }

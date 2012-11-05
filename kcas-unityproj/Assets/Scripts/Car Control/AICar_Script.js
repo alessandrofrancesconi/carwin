@@ -60,7 +60,7 @@ function Update () {
 	// the steer angle is an arbitrary value multiplied by the user input.
 	var leftAngle = transform.Find("RayTracing").GetComponent(RayCalc_Script).leftAngle / -90;
 	var rightAngle = transform.Find("RayTracing").GetComponent(RayCalc_Script).rightAngle / 90;
-	print(leftAngle + ";" + rightAngle);
+	
 	FrontLeftWheel.steerAngle = 23 * leftAngle;
 	FrontRightWheel.steerAngle = 23 * rightAngle;
 }
