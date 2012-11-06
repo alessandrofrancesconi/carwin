@@ -39,7 +39,7 @@ class NN_Layer {
 	var neurons : NN_Neuron[];
 	
 	public function NN_Layer(neuronsCount : int, inputCount : int) {
-		neurons = new NN_Neuron[neuronsCount];
+		this.neurons = new NN_Neuron[neuronsCount];
 		for (neuron in neurons) {
 			neuron = new NN_Neuron(inputCount);
 		}
@@ -58,15 +58,15 @@ public class NeuralNetwork
 	public function NeuralNetwork() {
 		var NEURONS_PER_HIDDEN : int = 8;
 		
-		input = new float[NN_InputEnum.NN_INPUT_COUNT];
+		this.input = new float[NN_InputEnum.NN_INPUT_COUNT];
 		
-		hiddenLayers = new NN_Layer[NN_OutputEnum.NN_OUTPUT_COUNT];
+		this.hiddenLayers = new NN_Layer[1];
 		for (layer in hiddenLayers) {
 			layer = new NN_Layer(NEURONS_PER_HIDDEN, NN_InputEnum.NN_INPUT_COUNT); // # neurons in each hidden layer
 		}
 		
-		output = new float[NN_OutputEnum.NN_OUTPUT_COUNT];
-		outputLayer = new NN_Layer(NN_OutputEnum.NN_OUTPUT_COUNT, NEURONS_PER_HIDDEN);
+		this.output = new float[NN_OutputEnum.NN_OUTPUT_COUNT];
+		this.outputLayer = new NN_Layer(NN_OutputEnum.NN_OUTPUT_COUNT, NEURONS_PER_HIDDEN);
 	}
 	
 	public function Update() {

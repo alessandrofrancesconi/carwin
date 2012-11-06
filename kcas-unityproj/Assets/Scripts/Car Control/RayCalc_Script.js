@@ -5,12 +5,12 @@ private var frontRightRay : Component;
 public var leftAngle : float;
 public var rightAngle : float;
 
-private enum CurveTypeEnum { 
+private enum TurnTypeEnum { 
 	STRAIGHT, 
 	LEFT, 
 	RIGHT
 };
-public var curveType;
+public var turnType;
 
 function Start () {
 	frontLeftRay = transform.Find("FrontLeftRay");
