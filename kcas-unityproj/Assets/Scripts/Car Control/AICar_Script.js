@@ -8,8 +8,6 @@
 // Contact me at Maxwelldoggums@Gmail.com for more information.
 
 
-
-
 // These variables allow the script to power the wheels of the car.
 var FrontLeftWheel : WheelCollider;
 var FrontRightWheel : WheelCollider;
@@ -27,11 +25,14 @@ var MaxEngineRPM : float = 3000.0;
 var MinEngineRPM : float = 1000.0;
 private var EngineRPM : float = 0.0;
 
-
+private var brainComponent : Component;
+public var carInputs : float[];
 
 function Start () {
 	// I usually alter the center of mass to make the car more stable. I'ts less likely to flip this way.
 	rigidbody.centerOfMass.y = -1.5;
+	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
+	brainComponent.brain = NeuralNetwork();
 }
 
 function Update () {
@@ -43,18 +44,42 @@ function Update () {
 	// Compute the engine RPM based on the average RPM of the two wheels, then call the shift gear function
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
 	ShiftGears();
-
+	
+	var inputs : float[] = new float[parseInt(NN_INPUT.COUNT)];
+	inputs[parseInt(NN_INPUT.SPEED)] = (rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
+	inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).frontCollisionDist;
+	
+	if (GameObject.Find("RayTracing").GetComponent(RayCalc_Script).leftAngle < 0.0f) {
+		inputs[parseInt(NN_INPUT.TURN_ANGLE)] = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).leftAngle;
+	} 
+	else if (GameObject.Find("RayTracing").GetComponent(RayCalc_Script).rightAngle > 0.0f) {
+		inputs[parseInt(NN_INPUT.TURN_ANGLE)] = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).rightAngle;
+	}
+	else {
+		inputs[parseInt(NN_INPUT.TURN_ANGLE)] = 0.0f;
+	}
+	
+	carInputs = inputs;
+	brainComponent.brain.SetInputs(inputs);
+	brainComponent.brain.Update();
+	
+	var outputs : float[] = brainComponent.brain.GetOutputs();
+	FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * outputs[parseInt(NN_OUTPUT.ACCELERATION)];
+	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 20 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
+	
+	/*
 	// finally, apply the values to the wheels.	The torque applied is divided by the current gear, and
 	// multiplied by the user input variable.
 	FrontLeftWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * Input.GetAxis("Vertical");
 	FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * Input.GetAxis("Vertical");
 		
 	// the steer angle is an arbitrary value multiplied by the user input.
-	var leftAngle = transform.Find("RayTracing").GetComponent(RayCalc_Script).leftAngle / -90;
-	var rightAngle = transform.Find("RayTracing").GetComponent(RayCalc_Script).rightAngle / 90;
+	var leftAngle = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).leftAngle / -90;
+	var rightAngle = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).rightAngle / 90;
 	
 	FrontLeftWheel.steerAngle = 23 * leftAngle;
 	FrontRightWheel.steerAngle = 23 * rightAngle;
+	*/
 }
 
 function ShiftGears() {
@@ -85,4 +110,8 @@ function ShiftGears() {
 		
 		CurrentGear = AppropriateGear;
 	}
+}
+
+function OnCollisionStay(collision : Collision) {
+	print(collision.gameObject.name);
 }

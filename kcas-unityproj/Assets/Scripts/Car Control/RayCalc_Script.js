@@ -4,13 +4,14 @@ private var frontLeftRay : Component;
 private var frontRightRay : Component;
 public var leftAngle : float;
 public var rightAngle : float;
+public var frontCollisionDist : float;
 
 private enum TurnTypeEnum { 
-	STRAIGHT, 
+	STRAIGHT = 0, 
 	LEFT, 
 	RIGHT
 };
-public var turnType;
+public var turnType : TurnTypeEnum;
 
 function Start () {
 	frontLeftRay = transform.Find("FrontLeftRay");
@@ -30,13 +31,15 @@ function Update () {
 		// little right turn for stabilization 
 		leftAngle = 0.0f;
 		rightAngle = 5.0f;
-		curveType = CurveTypeEnum.RIGHT;
+		turnType = TurnTypeEnum.RIGHT;
+		frontCollisionDist = leftHit.distance;
 	}
 	else if (!collisionLeft && collisionRight) {
 		// little left turn for stabilization 
 		leftAngle = 5.0f;
 		rightAngle = 0.0f;
-		curveType = CurveTypeEnum.LEFT;
+		turnType = TurnTypeEnum.LEFT;
+		frontCollisionDist = rightHit.distance;
 	}
 	else if (collisionLeft && collisionRight) {
 		// calc the steering direction
@@ -50,19 +53,23 @@ function Update () {
 			// Left turn
 			leftAngle = (curveAngle - 180)*(-1);
 			rightAngle = 0.0f;
-			curveType = CurveTypeEnum.LEFT;
+			turnType = TurnTypeEnum.LEFT;
 		}
 		else {
 			// Right turn
 			rightAngle = curveAngle;
 			leftAngle = 0.0f;
-			curveType = CurveTypeEnum.RIGHT;
+			turnType = TurnTypeEnum.RIGHT;
 		}
+		
+		frontCollisionDist = (leftHit.distance < rightHit.distance ? leftHit.distance : rightHit.distance);
 	}
 	else {
 		// no collisions, go straight
 		leftAngle = 0.0f;
 		rightAngle = 0.0f;
-		curveType = CurveTypeEnum.STRAIGHT;
+		turnType = TurnTypeEnum.STRAIGHT;		
+		frontCollisionDist = rayLength + 1;
 	}
+	
 }

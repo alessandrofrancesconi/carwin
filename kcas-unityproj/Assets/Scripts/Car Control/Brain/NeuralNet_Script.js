@@ -1,97 +1,144 @@
 #pragma strict
 
-private enum NN_InputEnum { 
-	SPEED, // current speed of the car
+public var brain : NeuralNetwork;
+
+public enum NN_INPUT { 
+	SPEED = 0, // current speed of the car
 	FRONT_COLLISION_DIST, // distance from the nearest collision point (taken from RayTracing method)
-	TURN_TYPE, // right, left or straight?
-	BIAS,
+	TURN_ANGLE, // angle of the imminent curve (taken from RayTracing method), or 0 if straight line
+	BIAS, // The bias will act as a threshold value, it's fixed to -1.0f
 	
-	NN_INPUT_COUNT
+	COUNT
 };
 
-private enum NN_OutputEnum { 
-	STEERING_FORCE, 
+public enum NN_OUTPUT { 
+	STEERING_FORCE = 0, 
 	ACCELERATION,
 	
-	NN_OUTPUT_COUNT
+	COUNT
 };
 
-// a neuron is a structure composed by input datas and relative weights
-class NN_Neuron {
-	private var inputs : float[];
-	private var weights : float[];
-	
-	public function NN_Neuron(inputCount : int) {
-		// init weights randomly
-		this.weights = new float[inputCount];
-		for (weight in weights) {
-			weight = Random.Range(-1.0, 1.0);
-		}
-	}
-	
-	public function SetInputs(inputs : float[]) {
-		this.inputs = inputs;
-	}	
-}
-
-class NN_Layer {
-	var totOutputs : int;
-	var neurons : NN_Neuron[];
-	
-	public function NN_Layer(neuronsCount : int, inputCount : int) {
-		this.neurons = new NN_Neuron[neuronsCount];
-		for (neuron in neurons) {
-			neuron = new NN_Neuron(inputCount);
-		}
-	}
-}
-
-public class NeuralNetwork
-{
-	var input : float[];
+public class NeuralNetwork {
+	var inputs : float[];
 	var inputLayer : NN_Layer;
 	var hiddenLayers : NN_Layer[]; // hidden layers
-	var output : float[];
+	var outputs : float[];
 	var outputLayer : NN_Layer;
 	
 	// build and initialize the entire neural network
-	public function NeuralNetwork() {
-		var NEURONS_PER_HIDDEN : int = 8;
+	function NeuralNetwork() {
+		var HIDDEN_LAYERS_COUNT : int = 1; // 1 hidden layer is enough...
+		var NEURONS_PER_HIDDEN : int = 8; // # neurons in each hidden layer
 		
-		this.input = new float[NN_InputEnum.NN_INPUT_COUNT];
+		this.inputs = new float[parseInt(NN_INPUT.COUNT)];
 		
-		this.hiddenLayers = new NN_Layer[1];
+		this.hiddenLayers = new NN_Layer[HIDDEN_LAYERS_COUNT]; 
 		for (layer in hiddenLayers) {
-			layer = new NN_Layer(NEURONS_PER_HIDDEN, NN_InputEnum.NN_INPUT_COUNT); // # neurons in each hidden layer
+			layer = new NN_Layer(NEURONS_PER_HIDDEN, parseInt(NN_INPUT.COUNT)); 
 		}
 		
-		this.output = new float[NN_OutputEnum.NN_OUTPUT_COUNT];
-		this.outputLayer = new NN_Layer(NN_OutputEnum.NN_OUTPUT_COUNT, NEURONS_PER_HIDDEN);
+		this.outputs = new float[parseInt(NN_OUTPUT.COUNT)];
+		this.outputLayer = new NN_Layer(parseInt(NN_OUTPUT.COUNT), NEURONS_PER_HIDDEN);
 	}
 	
 	public function Update() {
-		this.output = [];
-		// .....
+		this.outputs = new float[parseInt(NN_OUTPUT.COUNT)]; // clear outputs
+		
+		var i : int = 0;
+		for (layer in this.hiddenLayers) {
+			if (i > 0) this.inputs = this.outputs;
+			this.outputs = layer.Evaluate(this.inputs);
+			i++;
+		}
+		
+		this.inputs = this.outputs;
+		// Process the output through the output layer to 
+		this.outputs = this.outputLayer.Evaluate(this.inputs);
 	}
 	
-	public function SetInput(input : float[]) {
-		this.input[NN_InputEnum.SPEED] = input[NN_InputEnum.SPEED];
-		this.input[NN_InputEnum.FRONT_COLLISION_DIST] = input[NN_InputEnum.FRONT_COLLISION_DIST];
-		this.input[NN_InputEnum.TURN_TYPE] = input[NN_InputEnum.TURN_TYPE];
-		this.input[NN_InputEnum.BIAS] = -1.0f;
+	public function SetInputs(inputs : float[]) {
+		this.inputs = new float[NN_INPUT.COUNT];
+		this.inputs[parseInt(NN_INPUT.SPEED)] = inputs[parseInt(NN_INPUT.SPEED)];
+		this.inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)];
+		this.inputs[parseInt(NN_INPUT.TURN_ANGLE)] = inputs[parseInt(NN_INPUT.TURN_ANGLE)];
+		this.inputs[parseInt(NN_INPUT.BIAS)] = -1.0f;
 	}
 	
-	public function GetOutput() {
-		return this.output;
+	public function GetOutputs() {
+		return this.outputs;
 	}
 	
+	
+	
+	class NN_Layer {
+		var neurons : NN_Neuron[];
+		
+		function NN_Layer(neuronsCount : int, inputCount : int) {
+			this.neurons = new NN_Neuron[neuronsCount];
+			for (neuron in this.neurons) {
+				neuron = new NN_Neuron(inputCount);
+			}
+		}
+		
+		public function Evaluate(input : float[]) {
+			var dynOutput = new Array();
+			
+			// Cycle over all the neurons and sum their weights against the inputs.
+			for (neuron in this.neurons) {
+				var activation : float = 0.0f;
+				
+				var weights : float[] = neuron.GetWeights();
+				
+				var i : int;
+				for (i = 0; i < input.length; i++) {
+					activation += input[i] * weights[i];
+				}
+
+				// calc the sigmoid value
+				var sig : float = 1 / (1 + Mathf.Exp(-activation));
+				// and push it on outputs (dynamic array)
+				dynOutput.Push(sig);
+			}
+			
+			// dynamic array to builtin output array
+			var output : float[] = new float[dynOutput.length];
+			var j : int;
+			for (j = 0; j < dynOutput.length; j++) output[j] = dynOutput[j];
+			
+			return output;
+		}
+		
+		
+		// a neuron is a structure composed by input datas and relative weights
+		class NN_Neuron {
+			private var inputs : float[];
+			private var weights : float[];
+			
+			function NN_Neuron(inputCount : int) {
+				this.inputs = new float[inputCount];
+				// populate weights randomly
+				this.weights = new float[inputCount];
+				for (weight in weights) {
+					weight = Random.Range(-2.0, 2.0); // get a random number between -2.0 and 2.0
+				}
+			}
+			
+			public function SetInputs(inputs : float[]) {
+				this.inputs = inputs;
+			}
+			
+			public function GetInputs() {
+				return this.inputs;
+			}
+			
+			public function GetWeights() {
+				return this.weights;
+			}
+		}
+	}
 }
 
 
-function Start () {
-	var brain = new NeuralNetwork();
-}
+function Start () {}
 
-function Update () {
-
-}
+function Update () {}
