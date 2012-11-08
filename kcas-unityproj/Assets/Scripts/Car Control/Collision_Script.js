@@ -8,7 +8,3 @@ function Update () {
 
 }
 
-
-function OnCollisionEnter(collision : Collision) {
-	print(collision.gameObject.name);
-}

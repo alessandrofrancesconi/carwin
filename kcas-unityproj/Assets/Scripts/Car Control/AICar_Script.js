@@ -26,7 +26,6 @@ var MinEngineRPM : float = 1000.0;
 private var EngineRPM : float = 0.0;
 
 private var brainComponent : Component;
-public var carInputs : float[];
 
 function Start () {
 	// I usually alter the center of mass to make the car more stable. I'ts less likely to flip this way.
@@ -59,7 +58,6 @@ function Update () {
 		inputs[parseInt(NN_INPUT.TURN_ANGLE)] = 0.0f;
 	}
 	
-	carInputs = inputs;
 	brainComponent.brain.SetInputs(inputs);
 	brainComponent.brain.Update();
 	
@@ -110,8 +108,4 @@ function ShiftGears() {
 		
 		CurrentGear = AppropriateGear;
 	}
-}
-
-function OnCollisionStay(collision : Collision) {
-	print(collision.gameObject.name);
 }
