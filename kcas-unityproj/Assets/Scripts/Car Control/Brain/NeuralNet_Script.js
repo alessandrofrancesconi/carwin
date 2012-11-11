@@ -119,6 +119,7 @@ public class NeuralNetwork {
 				// populate weights randomly
 				this.weights = new float[inputCount];
 				for (weight in weights) {
+	
 					weight = Random.Range(-2.0, 2.0); // get a random number between -2.0 and 2.0
 				}
 			}

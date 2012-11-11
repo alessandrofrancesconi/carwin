@@ -27,6 +27,11 @@ private var EngineRPM : float = 0.0;
 
 private var brainComponent : Component;
 
+public function prova()
+{
+	Debug.Log("Ho colliso ");
+}
+
 function Start () {
 	// I usually alter the center of mass to make the car more stable. I'ts less likely to flip this way.
 	rigidbody.centerOfMass.y = -1.5;
@@ -108,4 +113,24 @@ function ShiftGears() {
 		
 		CurrentGear = AppropriateGear;
 	}
+}
+
+function myPrint(str:String)
+{
+	Debug.Log(str);
+}
+
+function OnCollisionStay(collision : Collision) {
+    // Debug-draw all contact points and normals
+    for (var contact : ContactPoint in collision.contacts) {
+        Debug.DrawRay(contact.point, contact.normal, Color.white);
+        if (contact.normal != Vector3.up)
+        	Debug.Log("Collisione con " + contact.normal);
+    }
+    /*
+    var auto:GameObject = GameObject.Find("AICar");
+	var scriptMaster:AICar_Script = auto.GetComponent("AICar_Script");
+	scriptMaster.prova();*/
+    
+    //Debug.Log("Collisione con " + collision.gameObject.name);
 }
