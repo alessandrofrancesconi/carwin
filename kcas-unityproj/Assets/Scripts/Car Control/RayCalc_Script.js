@@ -60,11 +60,11 @@ function Update () {
 			frontLeftDistance = Mathf.Round(rayLength + rayLength / numDiscretDistance / 2 * 100f) / 100f;
 		}
 	}
-	for (var i=1; i <= numDiscretDistance; i++)
+	for (var i2=1; i2 <= numDiscretDistance; i2++)
 	{
 		if(collisionRight)	{
-			if (rightHit.distance < (rayLength / numDiscretDistance) * i)	{
-				var tmp:float = ((rayLength / numDiscretDistance) * (i-1) + (rayLength / numDiscretDistance) * i) / 2;
+			if (rightHit.distance < (rayLength / numDiscretDistance) * i2)	{
+				tmp = ((rayLength / numDiscretDistance) * (i2-1) + (rayLength / numDiscretDistance) * i2	) / 2;
 				tmp = Mathf.Round(tmp * 100f) / 100f;
 				aicarScript.myPrint("Left discrete distance: " + tmp);
 				frontRightDistance = tmp;
