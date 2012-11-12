@@ -68,6 +68,54 @@ public class NeuralNetwork {
 		return this.outputs;
 	}
 	
+	/* Returns an array of all weights from hidden and output layers */
+	public function GetTotalWeights() : float[] {
+		var totWeights = new Array();
+		
+		// Take weights from middle neurons
+		for (layer in this.hiddenLayers) {
+			for (neuron in layer.GetNeurons()) {
+				for (weight in neuron.GetWeights()) {
+					totWeights.Push(weight);
+				}
+			}
+		}
+		
+		// Take weights from output neurons
+		for (neuron in this.outputLayer.GetNeurons()) {
+			for (weight in neuron.GetWeights()) {
+				totWeights.Push(weight);
+			}
+		}
+		
+		// dynamic array to builtin output array
+		var output : float[] = new float[totWeights.length];
+		var j : int;
+		for (j = 0; j < totWeights.length; j++) output[j] = totWeights[j];
+		
+		return output;
+	}
+	
+	public function SetTotalWeights(weights : float[]) {
+		var i : int = 0;
+		
+		for (layer in this.hiddenLayers) {
+			for (neuron in layer.GetNeurons()) {
+				for (weight in neuron.GetWeights()) {
+					weight = weights[i];
+					i++;
+				}
+			}
+		}
+		
+		for (neuron in this.outputLayer.GetNeurons()) {
+			for (weight in neuron.GetWeights()) {
+				weight = weights[i];
+				i++;
+			}
+		}
+	}
+	
 	
 	
 	class NN_Layer {
@@ -108,6 +156,10 @@ public class NeuralNetwork {
 			return output;
 		}
 		
+		public function GetNeurons() : NN_Neuron[] {
+			return this.neurons;
+		}
+		
 		
 		// a neuron is a structure composed by input datas and relative weights
 		class NN_Neuron {
@@ -118,9 +170,9 @@ public class NeuralNetwork {
 				this.inputs = new float[inputCount];
 				// populate weights randomly
 				this.weights = new float[inputCount];
-				for (weight in weights) {
+				/*for (weight in weights) {
 					weight = Random.Range(-2.0, 2.0); // initialize each weight with  a random number between -2.0 and 2.0
-				}
+				}*/
 			}
 			
 			public function SetInputs(inputs : float[]) {
@@ -133,6 +185,10 @@ public class NeuralNetwork {
 			
 			public function GetWeights() {
 				return this.weights;
+			}
+			
+			public function SetWeights(weights : float[]) {
+				this.weights = weights;
 			}
 		}
 	}
