@@ -47,7 +47,6 @@
      <Compile Include="Assets\Scripts\Car Control\AICar_Script.js" />
      <Compile Include="Assets\Scripts\Car Control\Brain\GeneticAlgorithm_Script.js" />
      <Compile Include="Assets\Scripts\Car Control\Brain\NeuralNet_Script.js" />
-     <Compile Include="Assets\Scripts\Car Control\Collision_Script.js" />
      <Compile Include="Assets\Scripts\Car Control\RayCalc_Script.js" />
      <Compile Include="Assets\Scripts\Car Control\RayDraw_Script.js" />
      <Compile Include="Assets\Scripts\Car Control\WheelAlignment_Script.js" />

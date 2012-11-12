@@ -4,8 +4,8 @@ public var brain : NeuralNetwork;
 
 public enum NN_INPUT { 
 	SPEED = 0, // current speed of the car
-	FRONT_COLLISION_DIST, // distance from the nearest collision point (taken from RayTracing method)
-	TURN_ANGLE, // angle of the imminent curve (taken from RayTracing method), or 0 if straight line
+	FRONT_COLLISION_DIST, // distance from the nearest front collision point (taken from RayTracing method)
+	TURN_ANGLE, // angle of the imminent curve (taken from RayTracing method), from -90 to 90
 	BIAS, // The bias will act as a threshold value, it's fixed to -1.0f
 	
 	COUNT
@@ -119,8 +119,7 @@ public class NeuralNetwork {
 				// populate weights randomly
 				this.weights = new float[inputCount];
 				for (weight in weights) {
-	
-					weight = Random.Range(-2.0, 2.0); // get a random number between -2.0 and 2.0
+					weight = Random.Range(-2.0, 2.0); // initialize each weight with  a random number between -2.0 and 2.0
 				}
 			}
 			

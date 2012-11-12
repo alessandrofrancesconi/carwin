@@ -1,9 +1,9 @@
 #pragma strict
 
 
-var ray : Ray;
-var rayRendColor : Color;
-var rayLength : int = 40;
+public var ray : Ray;
+public var rayRendColor : Color;
+
 private var rayRend : LineRenderer;
 
 function Start () {
@@ -19,5 +19,6 @@ function Update () {
 	
 	rayRend.SetPosition(0, ray.origin);
 	
+	var rayLength = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).rayLength;
 	rayRend.SetPosition(1, ray.origin + (transform.forward * rayLength));
 }
