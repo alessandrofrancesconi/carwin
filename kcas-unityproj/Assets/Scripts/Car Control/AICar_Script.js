@@ -29,9 +29,12 @@ private var brainComponent : Component;
 private var geneticComponent : Component;
 private var rayComponent : Component;
 
-public var currentChromosome : int;
-public var currentFitness : int;
 public var startPoint : GameObject;
+
+private var mediumSpeed : float;
+private var totDistance : float;
+private var totFrames : int;
+private var startTime : float;
 
 /*
 This function:
@@ -40,6 +43,7 @@ This function:
 - if we have finished chromosome, do crossover etc...
 */
 function Simulation()	{
+	CancelInvoke("checkMoving");
 	// - starts a simulation
 	// puts the car in the correct start point
 	transform.position = startPoint.transform.position;
@@ -49,11 +53,16 @@ function Simulation()	{
 	
 	// sets the current chromosome as weights of the NN
 	brainComponent.brain.SetTotalWeights( 
-		geneticComponent.population.GetChromosomes()[currentChromosome].GetWeights()
+		geneticComponent.population.GetCurrentChromosome().GetWeights()
 	);
 	
 	// reset the fitness value
-	currentFitness = 0;	
+	geneticComponent.population.ResetFitness();
+	totFrames = 0;
+	mediumSpeed = 0;
+	totDistance = 0;
+	startTime = Time.time;
+	Invoke("checkMoving", 5);
 }
 
 function Start () {
@@ -62,8 +71,6 @@ function Start () {
 	
 	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
 	brainComponent.brain = new NeuralNetwork();
-	
-	currentChromosome = 0;	// start from first chromosome.
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
 	geneticComponent.population = new Population(15, brainComponent.brain.GetTotalWeights().length);
@@ -96,31 +103,19 @@ function Update () {
 	FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * outputs[parseInt(NN_OUTPUT.ACCELERATION)];
 	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 20 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
 	
-	//FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * Input.GetAxis("Vertical");
-	//FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 10 * Input.GetAxis("Horizontal");
-	
-	/*
-	// finally, apply the values to the wheels.	The torque applied is divided by the current gear, and
-	// multiplied by the user input variable.
-	FrontLeftWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * Input.GetAxis("Vertical");
-	FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * Input.GetAxis("Vertical");
-		
-	// the steer angle is an arbitrary value multiplied by the user input.
-	var leftAngle = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).leftAngle / -90;
-	var rightAngle = GameObject.Find("RayTracing").GetComponent(RayCalc_Script).rightAngle / 90;
-	
-	FrontLeftWheel.steerAngle = 23 * leftAngle;
-	FrontRightWheel.steerAngle = 23 * rightAngle;
-	*/
-	
-	// update the fitness value
-	updateFitness();
 }
 
-function updateFitness() {
-	// for now it's a very basic increment, but in future there will be
-	// more checks on curve type and distance to internal wall...
-	currentFitness ++;
+function FixedUpdate () {
+	totDistance = totDistance + rigidbody.velocity.magnitude * Time.fixedDeltaTime;
+	mediumSpeed = (mediumSpeed + rigidbody.velocity.magnitude*10) / ++totFrames;
+	// update the fitness value
+	geneticComponent.population.UpdateFitness();
+}
+
+function checkMoving() {
+	if (mediumSpeed < 0.01) {
+		restartSimulation();
+	}
 }
 
 function ShiftGears() {
@@ -157,82 +152,31 @@ function ShiftGears() {
 function OnCollisionStay(collision : Collision) {
 	for (var contact : ContactPoint in collision.contacts) {
         if (contact.normal != Vector3.up)	{
-        	//Debug.Log("Collisione con " + contact.normal);
-        	Debug.Log("Cromosoma corrente " + currentChromosome);
-        	// reset simulation, but with new chromosome
-    		geneticComponent.population.chromosomes[currentChromosome].SetFitness(currentFitness);
-    		
-        	currentChromosome ++;
-        	
-        	// tried all the chromosomes, start a new generation.
-        	if(currentChromosome == geneticComponent.population.GetChromosomes().length)	{
-        		Debug.Log("Generation tested");
-        		currentChromosome = 0;
-        	}
-        	
-        	Simulation();
+        	restartSimulation();
         	break;
         }
     }
 }
 
-function CrossOver(): Population.Chromosome[] {
-	var totWeights : int = geneticComponent.population.GetChromosomes()[0].GetWeights().length;
-	var toCross : int = Random.Range(0, totWeights - 2);
+// reset simulation, but with new chromosome
+function restartSimulation() {
+	// save current fitness value on last used chromosome
+	geneticComponent.population.SetCurrentCromosomeFitness(
+		//Mathf.RoundToInt(geneticComponent.population.GetCurrentFitness()) * mediumSpeed)
+		Mathf.RoundToInt(totDistance / ((Time.time - startTime) / 2))
+	);
+	Debug.Log("Cromosoma corrente " + geneticComponent.population.GetCurrentChromosomeID() 
+		+ " con fitness " + geneticComponent.population.GetCurrentCromosomeFitness()
+		+ " vel media " + mediumSpeed);
 	
-	var chromosome1:int = RouletteWheel();
-	var chromosome2:int = RouletteWheel();
+	// go throught next chromosome
+	geneticComponent.population.SetNextChromosome();
 	
-	// create 2 new chromosomes from the selected ones
-	var newChromosome1 = geneticComponent.population.GetChromosomes()[chromosome1];
-	var newChromosome2 = geneticComponent.population.GetChromosomes()[chromosome2];
-	
-	var weightsTMP1: float[] = new float[totWeights];
-	var weightsTMP2: float[] = new float[totWeights];
-	for (i=0; i < totWeights; i++)	{
-		if (i <= toCross)	{
-			weightsTMP1[i] = newChromosome1.GetWeights()[i];
-			weightsTMP2[i] = newChromosome2.GetWeights()[i];
-		}	else{
-			weightsTMP1[i] = newChromosome2.GetWeights()[i];
-			weightsTMP2[i] = newChromosome1.GetWeights()[i];
-		}
+	if(geneticComponent.population.IsLastChromosome())	{
+		// tried all the chromosomes, start a new generation.
+		Debug.Log("Generation tested");
+		geneticComponent.population.NewGeneration();
 	}
 	
-	var chromPair: Population.Chromosome[] = new Population.Chromosome[2];
-	chromPair[0] = new Population.Chromosome( totWeights );
-	chromPair[0].SetWeights(weightsTMP1);
-	chromPair[1] = new Population.Chromosome( totWeights );
-	chromPair[1].SetWeights(weightsTMP2);
-	return chromPair;
-}
-
-/*
-    [Sum] Calculate sum of all chromosome fitnesses in population - sum S.
-    [Select] Generate random number from interval (0,S) - r.
-    [Loop] Go through the population and sum fitnesses from 0 - sum s. 
-    When the sum s is greater then r, stop and return the chromosome where you are. 
-*/
-function RouletteWheel() : int {
-	var fitnessSum : int = 0;
-	var randomNum : int;
-	var selectedChrom : int = 0;
-	
-	for(chromosome in geneticComponent.population.GetChromosomes()) {
-		fitnessSum += chromosome.GetFitness();
-	}
-	
-	randomNum = Mathf.RoundToInt(Random.Range(0, fitnessSum));
-	fitnessSum = 0;
-	for(chromosome in geneticComponent.population.GetChromosomes()) {
-		fitnessSum += chromosome.GetFitness();
-		if (fitnessSum > randomNum) {
-			return selectedChrom;
-		}
-		else {
-			selectedChrom++;
-		}
-	}
-	
-	return selectedChrom;
+	Simulation();
 }
