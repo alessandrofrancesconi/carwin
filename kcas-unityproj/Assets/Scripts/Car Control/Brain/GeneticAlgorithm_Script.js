@@ -36,10 +36,12 @@ public class Population	{
 		var crossOverRate : float = 0.7;
 		for(var i = 0; i < chromosomes.length; i++)
 		{
+			// TODO: perform a mutation 0.5% of times
 			// generate a crossover with probability 70%
 			if(Random.value <= crossOverRate)	{
 				var chromosomePair : Chromosome[] = this.CrossOver();
 				newChromosomes[i] = chromosomePair[0];
+				
 				i++;
 				if ( i < chromosomes.length)
 					newChromosomes[i] = chromosomePair[1];
@@ -47,6 +49,9 @@ public class Population	{
 				// copy an old chromosome with probability 30%
 				var chromToCopy = this.RouletteWheel();
 				newChromosomes[i] = this.chromosomes[chromToCopy];
+				/*if(Random.value <= crossOverRate)	{
+					newChromosomes[i] = 
+				}*/
 			}
 		}
 		
@@ -117,6 +122,21 @@ public class Population	{
 		this.chromosomes[this.currentChromosome].SetFitness(fit);
 	}
 	
+	/*
+	Perform a random mutation of a chromosome.
+	*/
+	function mutate(chromosome : Chromosome) : Chromosome	{
+		var weightToMutate : int = Mathf.RoundToInt( Random.value * chromosome.GetWeights().length);
+		var w : float[] = chromosome.GetWeights();
+		w[weightToMutate] += Random.value * 0.002 - 0.001;
+		chromosome.SetWeights(w);
+		
+		return chromosome;
+	}
+	
+	/*
+	Does the crossovr between between 2 chromosomes.
+	*/
 	function CrossOver(): Chromosome[] {
 		var totWeights : int = this.chromosomes[0].GetWeights().length;
 		var toCross : int = Random.Range(0, totWeights - 2);

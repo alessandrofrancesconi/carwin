@@ -158,12 +158,13 @@ function OnCollisionStay(collision : Collision) {
     }
 }
 
+
 // reset simulation, but with new chromosome
 function restartSimulation() {
 	// save current fitness value on last used chromosome
 	geneticComponent.population.SetCurrentCromosomeFitness(
 		//Mathf.RoundToInt(geneticComponent.population.GetCurrentFitness()) * mediumSpeed)
-		Mathf.RoundToInt(totDistance / ((Time.time - startTime) / 2))
+		Mathf.RoundToInt( 0.6 * (totDistance / (Time.time - startTime)) + 0.4 * (Time.time - startTime) )
 	);
 	Debug.Log("Cromosoma corrente " + geneticComponent.population.GetCurrentChromosomeID() 
 		+ " con fitness " + geneticComponent.population.GetCurrentCromosomeFitness()
