@@ -41,13 +41,13 @@ public class Population	{
 	function NewGeneration() {
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
-		var crossOverProb : float = 0.7f;
+		var crossOverProb : float = 0.75f;
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
 			var firstChrom = this.chromosomes[this.RouletteWheel()];
 			var secChrom = this.chromosomes[this.RouletteWheel()];
 			
-			// do a crossover with probability 70%
+			// do a crossover with probability 75%
 			if(Random.value <= crossOverProb) {
 				var chromosomePair : Chromosome[] = this.CrossOver(firstChrom, secChrom);
 				newChromosomes[i] = chromosomePair[0];
@@ -59,7 +59,7 @@ public class Population	{
 				newChromosomes[i+1] = secChrom;
 			}
 			
-			// in both cases, try a mutation of each chromosomes' weights with 0.7% of probability
+			// in both cases, try a mutation of each chromosome's weights with 0.8% of probability
 			newChromosomes[i] = this.Mutate(newChromosomes[i]);
 			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
 		}
@@ -176,7 +176,7 @@ public class Population	{
 	
 	/* Perform a random mutation of a chromosome. */
 	function Mutate(chromosome : Chromosome) : Chromosome	{
-		var mutationProb : float = 0.007f; // each weight has 0.7% of probability to be mutated
+		var mutationProb : float = 0.008f; // each weight has 0.8% of probability to be mutated
 		for (weight in chromosome.GetWeights()) {
 			if (Random.value <= mutationProb) {
 				weight += Random.Range(-0.1, 0.1);

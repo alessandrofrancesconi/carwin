@@ -20,6 +20,11 @@ function Update () {
 	var collisionLeft = Physics.Raycast (frontLeftRay.transform.position, frontLeftRay.transform.forward, leftHit, rayLength, Physics.kDefaultRaycastLayers);
 	var collisionRight = Physics.Raycast (frontRightRay.transform.position, frontRightRay.transform.forward, rightHit, rayLength, Physics.kDefaultRaycastLayers);
 	
+	//Debug.Log(leftHit.collider.name);
+	if ( collisionLeft && (leftHit.collider.name == "LapCollider") )
+		return;
+		
+		
 	if (collisionLeft && !collisionRight) {
 		// little right turn for stabilization 
 		turnAngle = 5.0f;
