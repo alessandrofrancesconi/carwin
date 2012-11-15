@@ -71,25 +71,25 @@ function Update () {
 		frontCollisionDist = (leftHit.distance + rightHit.distance) / 2;
 	}
 	else {
-		// no collisions, go straight
+		// no collisions, it's a straight stretch
 		turnAngle = 0.0f;	
 		frontCollisionDist = rayLength + 1;
 	}
 	
-	var interval = Mathf.Round(rayLength / numDiscretDistance);
-	
 	// check the side distance
 	if (!collisionSideLeft)
-		leftCollisionDist = rayLength +1;
+		leftCollisionDist = rayLength + 1;
 	else	{
 		leftCollisionDist = leftSideHit.distance;
 	}
 	if (!collisionSideRight)
-		rightCollisionDist = rayLength +1;
+		rightCollisionDist = rayLength + 1;
 	else	{
 		rightCollisionDist = rightSideHit.distance;
 	}
 	
+	// discretize front and side collision distances in 'numDiscretDistance' parts
+	var interval = Mathf.Round(rayLength / numDiscretDistance);
 	for (var ii = 0; ii < numDiscretDistance ; ii++) {
 		var leftLim = ii * interval;
 		var rightLim = leftLim + interval - 1;

@@ -30,7 +30,7 @@ private var brainComponent : Component;
 private var geneticComponent : Component;
 private var rayComponent : Component;
 
-public var startPoint : GameObject;
+private var startPoint : GameObject;
 
 private var avgSpeed : float; // average driving speed
 private var totDistance : float; // the distance made by the car
@@ -68,11 +68,13 @@ function Start () {
 	// I usually alter the center of mass to make the car more stable. I'ts less likely to flip this way.
 	rigidbody.centerOfMass.y = -1.5;
 	
+	startPoint = GameObject.Find("Track0").active ? GameObject.Find("Track0/StartPoint") : GameObject.Find("Track1/StartPoint");
+	
 	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
 	brainComponent.brain = new NeuralNetwork();
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
-	geneticComponent.population = new Population(20, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(16, brainComponent.brain.GetTotalWeights().length);
 	geneticComponent.population.InitRandomChromosomes();
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
@@ -130,7 +132,7 @@ function FixedUpdate () {
         System.IO.Directory.CreateDirectory(newPath);
 
         // Create a new file name. This example generates// a random string.
-        var newFileName = "population"+DateTime.Now.ToString("yyyy_MM_dd-HH_mm")+".pop";
+        var newFileName = "population"+DateTime.Now.ToString("yyyyMMddHHmm")+".pop";
 
         // Combine the new file name with the path
         newPath = System.IO.Path.Combine(newPath, newFileName);
@@ -140,10 +142,9 @@ function FixedUpdate () {
         if (!System.IO.File.Exists(newPath))
         {
             var fs = System.IO.File.Create(newPath);
-            for (var i = 0; i < data.length; i++)
-                {
-                    fs.WriteByte(data[i]);
-                }
+            for (var i = 0; i < data.length; i++) {
+				fs.WriteByte(data[i]);
+			}
         }
         
     }
@@ -203,8 +204,7 @@ function OnCollisionStay(collision : Collision) {
 function restartSimulation() {
 	
 	Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
-		+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness()
-		+ " and avgSpeed " + avgSpeed);
+		+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness());
 	
 	// go throught next chromosome
 	geneticComponent.population.SetNextChromosome();
@@ -223,6 +223,6 @@ function OnGUI () {
 	var boxWidth = 180;
 	GUI.Box (Rect (Screen.width-boxWidth, 0, boxWidth,  Screen.height), "STATS");
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Med.Speed : " + avgSpeed);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Distance : " + totDistance);
 }

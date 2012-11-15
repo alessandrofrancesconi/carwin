@@ -14,7 +14,7 @@ public class Population	{
 	public var currentPopulation : int;
 	
 	/*
-	Create a population of cCount chromosomes, each one of wCount elements (weights).
+	Create a population of cCount chromosomes, each one with wCount elements (weights).
 	*/
 	function Population(cCount : int, wCount : int)	{
 		this.chromosomes = new Chromosome[cCount];
@@ -24,11 +24,10 @@ public class Population	{
 		}
 		
 		this.currentPopulation = 0;
-		
 		this.currentChromosome = 0;
 	}
 	
-	/* save current population to JSON object */
+	/* save current population to a binary object */
 	function save() : byte[]
 	{
 		var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
@@ -44,8 +43,8 @@ public class Population	{
 		var crossOverProb : float = 0.75f;
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
-			var firstChrom = this.chromosomes[this.RouletteWheel()];
-			var secChrom = this.chromosomes[this.RouletteWheel()];
+			var firstChrom = this.RouletteWheel();
+			var secChrom = this.RouletteWheel();
 			
 			// do a crossover with probability 75%
 			if(Random.value <= crossOverProb) {
@@ -152,7 +151,7 @@ public class Population	{
 	    - [Select] Generate random number from interval (0,S) - r.
 	    - [Loop] Go through the population and sum fitnesses from 0 - sum s. 
 	    When the sum s is greater then r, stop and return the chromosome where you are. */
-	private function RouletteWheel() : int {
+	private function RouletteWheel() : Chromosome {
 		var fitnessSum : int = 0;
 		var randomNum : int;
 		var selectedChrom : int = 0;
@@ -166,14 +165,14 @@ public class Population	{
 		for(chromosome in this.chromosomes) {
 			fitnessSum += chromosome.GetFitness();
 			if (fitnessSum > randomNum) {
-				return selectedChrom;
+				break;
 			}
 			else {
 				selectedChrom++;
 			}
 		}
-		
-		return selectedChrom;
+		Debug.Log("Roulette Wheel choosed #" + selectedChrom);
+		return this.chromosomes[selectedChrom];
 	}
 	
 	/* Perform a random mutation of a chromosome. */
