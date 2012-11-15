@@ -7,6 +7,7 @@
 
 // Contact me at Maxwelldoggums@Gmail.com for more information.
 
+import System;
 
 // These variables allow the script to power the wheels of the car.
 var FrontLeftWheel : WheelCollider;
@@ -117,6 +118,33 @@ function FixedUpdate () {
 	
 	// update the fitness value
 	updateFitness();
+	
+	
+    if (Input.GetKeyDown ("space"))	{
+    	var data : byte[] = geneticComponent.population.save();
+    	var path = ".";
+    	var  newPath = System.IO.Path.Combine(path, "savedPopulations");
+    	 // Create the subfolder
+        System.IO.Directory.CreateDirectory(newPath);
+
+        // Create a new file name. This example generates// a random string.
+        var newFileName = "population"+DateTime.Now.ToString("yyyy_MM_dd-HH_mm")+".pop";
+
+        // Combine the new file name with the path
+        newPath = System.IO.Path.Combine(newPath, newFileName);
+
+        // Create the file and write to it.
+        // DANGER: System.IO.File.Create will overwrite the file if it already exists. This can occur even with// random file names.
+        if (!System.IO.File.Exists(newPath))
+        {
+            var fs = System.IO.File.Create(newPath);
+            for (var i = 0; i < data.length; i++)
+                {
+                    fs.WriteByte(data[i]);
+                }
+        }
+        
+    }
 }
 
 /*	This function checks if the car has made a distance higher that 5.

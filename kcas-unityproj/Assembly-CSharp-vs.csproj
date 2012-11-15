@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{9E5ED5DD-0822-FFA6-505D-8AF9B46D8F87}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_5_6;UNITY_3_5;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_WEBCAM;ENABLE_MICROPHONE;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW;ENABLE_SUBSTANCE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Scripts\json\benchmarks\Benchmark.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmCommon.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmJayrockExport.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmJayrockImport.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmJayrockOutput.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmJayrockReader.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmJayrockWriter.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmLitJsonExport.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmLitJsonImport.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmLitJsonOutput.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmLitJsonReader.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmLitJsonWriter.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmNewtonsoftExport.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmNewtonsoftImport.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmNewtonsoftOutput.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmNewtonsoftReader.cs" />
+     <Compile Include="Assets\Scripts\json\benchmarks\BmNewtonsoftWriter.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\IJsonWrapper.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\JsonData.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\JsonException.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\JsonMapper.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\JsonReader.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\JsonWriter.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\Lexer.cs" />
+     <Compile Include="Assets\Scripts\json\src\LitJson\ParserToken.cs" />
+     <Compile Include="Assets\Scripts\json\test\JsonDataTest.cs" />
+     <Compile Include="Assets\Scripts\json\test\JsonMapperTest.cs" />
+     <Compile Include="Assets\Scripts\json\test\JsonReaderTest.cs" />
+     <Compile Include="Assets\Scripts\json\test\JsonWriterTest.cs" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\reference\LitJson\JsonReader\properties\HasReachedEnd.xml" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\appendices\benchmarks\benchmarks.xml" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\reference\reference.xml" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\reference\LitJson\JsonReader\JsonReader.xml" />
+     <None Include="Assets\Car\Shaders\ConstantColorUnderLayer_Shader.shader" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\manual.xml" />
+     <None Include="Assets\Scripts\json\test\json-example.txt" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\appendices\appendices.xml" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\reference\LitJson\LitJson.xml" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\quickstart\quickstart.xml" />
+     <None Include="Assets\Scripts\json\doc\manual\sources\appendices\parser\parser.xml" />
+ <Reference Include="LitJson">
+ <HintPath>Assets\Scripts\json\bin\LitJson.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>

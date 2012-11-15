@@ -11,6 +11,7 @@ is the firsts, chromosomes with lower fitness is the lasts.
 public class Population	{
 	private var chromosomes : Chromosome[];
 	private var currentChromosome : int;
+	public var currentPopulation : int;
 	
 	/*
 	Create a population of cCount chromosomes, each one of wCount elements (weights).
@@ -22,7 +23,18 @@ public class Population	{
 			chromosome = new Chromosome(wCount);
 		}
 		
+		this.currentPopulation = 0;
+		
 		this.currentChromosome = 0;
+	}
+	
+	/* save current population to JSON object */
+	function save() : byte[]
+	{
+		var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+		var mem = new System.IO.MemoryStream();
+		formatter.Serialize(mem, this);
+		return mem.GetBuffer();
 	}
 	
 	/* Create a new population according to the fitness of the old chromosomes. */
