@@ -31,38 +31,36 @@ private var rayComponent : Component;
 
 public var startPoint : GameObject;
 
-private var mediumSpeed : float;
-private var totDistance : float;
-private var totFrames : int;
-private var startTime : float;
+private var avgSpeed : float; // average driving speed
+private var totDistance : float; // the distance made by the car
+private var lastPosition : Vector3; // the position of the car in the current frame
+private var totFrames : int; // frames passed from the simulation start (used for avgSpeed)
+private var totSpeed : int; // (used for avgSpeed)
 
-/*
-This function:
-- starts a simulation
-- update the fitnes of current chromosome at the end of the simulation (on collision event)
-- if we have finished chromosome, do crossover etc...
-*/
-function Simulation()	{
+/*	This function starts a new simulation  */
+function startSimulation()	{
 	CancelInvoke("checkMoving");
-	// - starts a simulation
-	// puts the car in the correct start point
+	
+	// put the car in the initial position
 	transform.position = startPoint.transform.position;
 	transform.rotation = startPoint.transform.rotation;
 	rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;
 	GameObject.Find("LapCollider").GetComponent(LapTime_Script).Start();
 	
-	// sets the current chromosome as weights of the NN
+	// set the NeuralNetwork weights by copying them from current chromosome
 	brainComponent.brain.SetTotalWeights( 
 		geneticComponent.population.GetCurrentChromosome().GetWeights()
 	);
 	
-	// reset the fitness value
-	geneticComponent.population.ResetFitness();
+	// reset the fitness value and other status variables
+	geneticComponent.population.ResetCurrentCromosomeFitness();
 	totFrames = 0;
-	mediumSpeed = 0;
+	totSpeed = 0;
+	avgSpeed = 0;
 	totDistance = 0;
-	startTime = Time.time;
-	Invoke("checkMoving", 5);
+	lastPosition = transform.position;
+	
+	Invoke("checkMoving", 5); // Check if the car is moving after the first 5 seconds
 }
 
 function Start () {
@@ -73,16 +71,25 @@ function Start () {
 	brainComponent.brain = new NeuralNetwork();
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
-	geneticComponent.population = new Population(15, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(20, brainComponent.brain.GetTotalWeights().length);
 	geneticComponent.population.InitRandomChromosomes();
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
-	Simulation();
+	startSimulation();
 }
 
-function Update () {
+/* */
+function updateFitness () {
+	// for now it's a very basic increment, but in future there will be
+	// more checks on curve type and distance to internal wall...
+	var currentFitness : int;
 	
+	currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);
+	geneticComponent.population.SetCurrentCromosomeFitness(currentFitness);
+}
+
+function FixedUpdate () {
 	// This is to limith the maximum speed of the car, adjusting the drag probably isn't the best way of doing it,
 	// but it's easy, and it doesn't interfere with the physics processing.
 	rigidbody.drag = rigidbody.velocity.magnitude / 250;
@@ -102,25 +109,27 @@ function Update () {
 	var outputs : float[] = brainComponent.brain.GetOutputs();
 	FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * outputs[parseInt(NN_OUTPUT.ACCELERATION)];
 	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 20 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
+
+	totDistance += Vector3.Distance(transform.position, lastPosition); 
+	lastPosition = transform.position;
+	totSpeed += Mathf.RoundToInt(rigidbody.velocity.magnitude);
+	avgSpeed = totSpeed / ++totFrames;
 	
-}
-
-function FixedUpdate () {
-	totDistance = totDistance + rigidbody.velocity.magnitude * Time.fixedDeltaTime;
-	mediumSpeed = (mediumSpeed + rigidbody.velocity.magnitude*10) / ++totFrames;
 	// update the fitness value
-	geneticComponent.population.UpdateFitness();
+	updateFitness();
 }
 
+/*	This function checks if the car has made a distance higher that 5.
+	If not, this simulation restarts */
 function checkMoving() {
-	if (mediumSpeed < 0.01) {
+	if (totDistance < 5) {
 		restartSimulation();
 	}
 }
 
+/*	this funciton shifts the gears of the vehcile, it loops through all the gears, checking which will make
+	the engine RPM fall within the desired range. The gear is then set to this "appropriate" value. */
 function ShiftGears() {
-	// this funciton shifts the gears of the vehcile, it loops through all the gears, checking which will make
-	// the engine RPM fall within the desired range. The gear is then set to this "appropriate" value.
 	if ( EngineRPM >= MaxEngineRPM ) {
 		var AppropriateGear : int = CurrentGear;
 		
@@ -148,7 +157,8 @@ function ShiftGears() {
 	}
 }
 
-// - update the fitnes of current chromosome at the end of the simulation
+/*	if the car collides (with a wall), we save the fitness of current chromosome 
+	and restart the simulation */
 function OnCollisionStay(collision : Collision) {
 	for (var contact : ContactPoint in collision.contacts) {
         if (contact.normal != Vector3.up)	{
@@ -159,25 +169,30 @@ function OnCollisionStay(collision : Collision) {
 }
 
 
-// reset simulation, but with new chromosome
+/*	reset simulation, but with new chromosomes */
 function restartSimulation() {
-	// save current fitness value on last used chromosome
-	geneticComponent.population.SetCurrentCromosomeFitness(
-		//Mathf.RoundToInt(geneticComponent.population.GetCurrentFitness()) * mediumSpeed)
-		Mathf.RoundToInt( 0.6 * (totDistance / (Time.time - startTime)) + 0.4 * (Time.time - startTime) )
-	);
-	Debug.Log("Cromosoma corrente " + geneticComponent.population.GetCurrentChromosomeID() 
-		+ " con fitness " + geneticComponent.population.GetCurrentCromosomeFitness()
-		+ " vel media " + mediumSpeed);
+	
+	Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
+		+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness()
+		+ " and avgSpeed " + avgSpeed);
 	
 	// go throught next chromosome
 	geneticComponent.population.SetNextChromosome();
 	
 	if(geneticComponent.population.IsLastChromosome())	{
 		// tried all the chromosomes, start a new generation.
-		Debug.Log("Generation tested");
+		Debug.Log("Generation tested, start new one");
 		geneticComponent.population.NewGeneration();
 	}
 	
-	Simulation();
+	startSimulation();
+}
+
+/* Print some statistics during each run */
+function OnGUI () {
+	var boxWidth = 180;
+	GUI.Box (Rect (Screen.width-boxWidth, 0, boxWidth,  Screen.height), "STATS");
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Med.Speed : " + avgSpeed);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Distance : " + totDistance);
 }

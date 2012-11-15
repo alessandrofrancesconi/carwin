@@ -10,7 +10,6 @@ is the firsts, chromosomes with lower fitness is the lasts.
 */
 public class Population	{
 	private var chromosomes : Chromosome[];
-	private var currentFitness : int;
 	private var currentChromosome : int;
 	
 	/*
@@ -24,46 +23,39 @@ public class Population	{
 		}
 		
 		this.currentChromosome = 0;
-		this.currentFitness = 0;
 	}
 	
-	/*
-	Create a new population according to the fitness of the old chromosomes.
-	*/
-	function NewGeneration()	{
+	/* Create a new population according to the fitness of the old chromosomes. */
+	function NewGeneration() {
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
-		var crossOverRate : float = 0.7;
-		for(var i = 0; i < chromosomes.length; i++)
+		var crossOverProb : float = 0.7f;
+		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
-			// TODO: perform a mutation 0.5% of times
-			// generate a crossover with probability 70%
-			if(Random.value <= crossOverRate)	{
-				var chromosomePair : Chromosome[] = this.CrossOver();
+			var firstChrom = this.chromosomes[this.RouletteWheel()];
+			var secChrom = this.chromosomes[this.RouletteWheel()];
+			
+			// do a crossover with probability 70%
+			if(Random.value <= crossOverProb) {
+				var chromosomePair : Chromosome[] = this.CrossOver(firstChrom, secChrom);
 				newChromosomes[i] = chromosomePair[0];
-				
-				i++;
-				if ( i < chromosomes.length)
-					newChromosomes[i] = chromosomePair[1];
-			}	else	{
-				// copy an old chromosome with probability 30%
-				var chromToCopy = this.RouletteWheel();
-				newChromosomes[i] = this.chromosomes[chromToCopy];
-				/*if(Random.value <= crossOverRate)	{
-					newChromosomes[i] = 
-				}*/
+				newChromosomes[i+1] = chromosomePair[1];
+				Debug.Log ("Crossover!");
+			} else {
+				// if not crossover, just copy the 2 chromosomes taken with the Roulette Wheel method
+				newChromosomes[i] = firstChrom;
+				newChromosomes[i+1] = secChrom;
 			}
+			
+			// in both cases, try a mutation of each chromosomes' weights with 0.7% of probability
+			newChromosomes[i] = this.Mutate(newChromosomes[i]);
+			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
 		}
-		
-		// TODO add mutation at rate 0.5%
 		
 		this.chromosomes = newChromosomes;
 	}
 	
-	/*
-	Fill the population with random generated chromosomes,
-	only the first time.
-	*/
+	/* Fill the population with random generated chromosomes*/
 	function InitRandomChromosomes()	{
 		for(chromosome in this.chromosomes) {
 			for (weight in chromosome.GetWeights())	{
@@ -96,85 +88,56 @@ public class Population	{
 		this.currentChromosome ++;
 	}
 	
-	// for now it's a very basic increment, but in future there will be
-	// more checks on curve type and distance to internal wall...
-	function UpdateFitness() {
-		this.currentFitness++;
-	}
-	
-	function ResetFitness() {
-		this.currentFitness = 0;
-	}
-	
-	function GetCurrentFitness() : int {
-		return this.currentFitness;
-	}
-	
 	function GetCurrentCromosomeFitness() : int {
 		return this.chromosomes[this.currentChromosome].GetFitness();
 	}
 	
-	function SetCurrentCromosomeFitness() {
-		this.chromosomes[this.currentChromosome].SetFitness(this.currentFitness);
+	function ResetCurrentCromosomeFitness() {
+		this.chromosomes[this.currentChromosome].SetFitness(0);
 	}
 	
 	function SetCurrentCromosomeFitness(fit : int) {
 		this.chromosomes[this.currentChromosome].SetFitness(fit);
 	}
 	
-	/*
-	Perform a random mutation of a chromosome.
-	*/
-	function mutate(chromosome : Chromosome) : Chromosome	{
-		var weightToMutate : int = Mathf.RoundToInt( Random.value * chromosome.GetWeights().length);
-		var w : float[] = chromosome.GetWeights();
-		w[weightToMutate] += Random.value * 0.002 - 0.001;
-		chromosome.SetWeights(w);
+	/* Creates 2 new chromosomes by crossovering 2 input chromosomes */
+	function CrossOver(firstChrom : Chromosome, secChrom : Chromosome): Chromosome[] {
+		var totWeights : int = firstChrom.GetWeights().length;
+		var crossingPoint : int = Random.Range(0, totWeights - 2);
 		
-		return chromosome;
-	}
-	
-	/*
-	Does the crossovr between between 2 chromosomes.
-	*/
-	function CrossOver(): Chromosome[] {
-		var totWeights : int = this.chromosomes[0].GetWeights().length;
-		var toCross : int = Random.Range(0, totWeights - 2);
+		// create two chromosomes starting from inputs
+		var newChromosome1 = new Chromosome(firstChrom.GetWeights());
+		var newChromosome2 = new Chromosome(secChrom.GetWeights());
 		
-		var chromosome1 : int = this.RouletteWheel();
-		var chromosome2 : int = this.RouletteWheel();
-		
-		// create 2 new chromosomes from the selected ones
-		var newChromosome1 = this.chromosomes[chromosome1];
-		var newChromosome2 = this.chromosomes[chromosome2];
-		
-		var weightsTMP1 : float[] = new float[totWeights];
-		var weightsTMP2 : float[] = new float[totWeights];
+		// crossover on weights
+		var weights1 : float[] = new float[totWeights];
+		var weights2 : float[] = new float[totWeights];
 		for (var i = 0; i < totWeights; i++)	{
-			if (i <= toCross)	{
-				weightsTMP1[i] = newChromosome1.GetWeights()[i];
-				weightsTMP2[i] = newChromosome2.GetWeights()[i];
+			if (i <= crossingPoint)	{
+				weights1[i] = newChromosome1.GetWeights()[i];
+				weights2[i] = newChromosome2.GetWeights()[i];
 			}	else {
-				weightsTMP1[i] = newChromosome2.GetWeights()[i];
-				weightsTMP2[i] = newChromosome1.GetWeights()[i];
+				weights1[i] = newChromosome2.GetWeights()[i];
+				weights2[i] = newChromosome1.GetWeights()[i];
 			}
 		}
 		
 		var chromPair : Chromosome[] = new Chromosome[2];
 		chromPair[0] = new Chromosome( totWeights );
-		chromPair[0].SetWeights(weightsTMP1);
+		chromPair[0].SetWeights(weights1);
 		chromPair[1] = new Chromosome( totWeights );
-		chromPair[1].SetWeights(weightsTMP2);
+		chromPair[1].SetWeights(weights2);
 		
 		return chromPair;
 	}
 		
-	/*
-	    [Sum] Calculate sum of all chromosome fitnesses in population - sum S.
-	    [Select] Generate random number from interval (0,S) - r.
-	    [Loop] Go through the population and sum fitnesses from 0 - sum s. 
-	    When the sum s is greater then r, stop and return the chromosome where you are. 
-	*/
+	/*	"Roulette Wheel" is a method to extract a chromosome by looking at its fitness value:
+		if some chromosome's fitness is higher than another, then that chromosome as more 
+		possibilities to be taken.
+		- [Sum] Calculate sum of all chromosome fitnesses in population - sum S.
+	    - [Select] Generate random number from interval (0,S) - r.
+	    - [Loop] Go through the population and sum fitnesses from 0 - sum s. 
+	    When the sum s is greater then r, stop and return the chromosome where you are. */
 	private function RouletteWheel() : int {
 		var fitnessSum : int = 0;
 		var randomNum : int;
@@ -198,6 +161,19 @@ public class Population	{
 		
 		return selectedChrom;
 	}
+	
+	/* Perform a random mutation of a chromosome. */
+	function Mutate(chromosome : Chromosome) : Chromosome	{
+		var mutationProb : float = 0.007f; // each weight has 0.7% of probability to be mutated
+		for (weight in chromosome.GetWeights()) {
+			if (Random.value <= mutationProb) {
+				weight += Random.Range(-0.1, 0.1);
+				Debug.Log ("Weight mutated!");
+			}
+		}
+		
+		return chromosome;
+	}
 
 	/*
 	This element is an array of weights of the neural network.
@@ -210,6 +186,11 @@ public class Population	{
 		function Chromosome(wCount : int) {
 			this.fitness = 0.0f;
 			this.weights = new float[wCount];
+		}
+		
+		function Chromosome(weights : float[]) {
+			this.fitness = 0.0f;
+			this.weights = weights;
 		}
 		
 		/* 
