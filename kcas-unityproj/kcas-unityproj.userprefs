@@ -1,12 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Car Control\Brain\GeneticAlgorithm_Script.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Car Control\Brain\NeuralNet_Script.js">
     <Files>
-      <File FileName="Assets\Scripts\Car Control\AICar_Script.js" Line="49" Column="30" />
-      <File FileName="Assets\Scripts\Car Control\Brain\GeneticAlgorithm_Script.js" Line="62" Column="57" />
-      <File FileName="Assets\Scripts\Car Control\RayCalc_Script.js" Line="24" Column="23" />
+      <File FileName="Assets\Scripts\Car Control\AICar_Script.js" Line="106" Column="32" />
+      <File FileName="Assets\Scripts\Car Control\Brain\GeneticAlgorithm_Script.js" Line="67" Column="29" />
       <File FileName="Assets\Scripts\Car Control\RayDraw_Script.js" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Car Control\Brain\NeuralNet_Script.js" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Car Control\Brain\NeuralNet_Script.js" Line="63" Column="40" />
       <File FileName="Assets\Scripts\LapTime_Script.js" Line="1" Column="1" />
     </Files>
     <Pads>
@@ -17,7 +16,7 @@
               <Node name="Scripts" expanded="True">
                 <Node name="Car Control" expanded="True">
                   <Node name="Brain" expanded="True">
-                    <Node name="GeneticAlgorithm_Script.js" selected="True" />
+                    <Node name="NeuralNet_Script.js" selected="True" />
                   </Node>
                 </Node>
               </Node>

@@ -102,6 +102,8 @@ function FixedUpdate () {
 	var inputs : float[] = new float[parseInt(NN_INPUT.COUNT)];
 	inputs[parseInt(NN_INPUT.SPEED)] = (rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
 	inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = rayComponent.frontCollisionDist;
+	inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = rayComponent.leftCollisionDist;
+	inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)] = rayComponent.rightCollisionDist;
 	inputs[parseInt(NN_INPUT.TURN_ANGLE)] = rayComponent.turnAngle;
 	
 	brainComponent.brain.SetInputs(inputs);

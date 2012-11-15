@@ -5,6 +5,8 @@ public var brain : NeuralNetwork;
 public enum NN_INPUT { 
 	SPEED = 0, // current speed of the car
 	FRONT_COLLISION_DIST, // distance from the nearest front collision point (taken from RayTracing method)
+	LEFT_COLLISION_DIST,
+	RIGHT_COLLISION_DIST,
 	TURN_ANGLE, // angle of the imminent curve (taken from RayTracing method), from -90 to 90
 	BIAS, // The bias will act as a threshold value, it's fixed to -1.0f
 	
@@ -60,6 +62,8 @@ public class NeuralNetwork {
 		this.inputs = new float[NN_INPUT.COUNT];
 		this.inputs[parseInt(NN_INPUT.SPEED)] = inputs[parseInt(NN_INPUT.SPEED)];
 		this.inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)];
+		this.inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)];
+		this.inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)] = inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)];
 		this.inputs[parseInt(NN_INPUT.TURN_ANGLE)] = inputs[parseInt(NN_INPUT.TURN_ANGLE)];
 		this.inputs[parseInt(NN_INPUT.BIAS)] = -1.0f;
 	}

@@ -64,6 +64,8 @@ public class Population	{
 			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
 		}
 		
+		this.currentPopulation ++;
+		
 		this.chromosomes = newChromosomes;
 	}
 	
