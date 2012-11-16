@@ -1,10 +1,10 @@
 Carwin
-=========================
+======
 
 A self-driving car implemented with neural networks and genetic algorithms (AI Course Project)
 
 This project is a study (and a implementation) of neural networks potentials in a context where a 
-car learns itself how to drive into a set circuits.
+car learns itself how to drive into a set of circuits.
 Connected with the developed neural network there is a genetic algorithm based on "Darwin's natural selection law".
 
 Requirements
@@ -19,7 +19,7 @@ Authors
 -------
 
 We are two students at University of Bologna, Computer Science Department. 
-This project belongs to its Artificial Intelligence course.
+This project belongs to the Artificial Intelligence course.
 
-	Buzzoni Marco (marco.buzzoni2@studio.unibo.it)
-	Francesconi Alessandro (alessand.francescon2@studio.unibo.it)
+* Buzzoni Marco (marco.buzzoni2@studio.unibo.it)
+* Francesconi Alessandro (alessand.francescon2@studio.unibo.it)
