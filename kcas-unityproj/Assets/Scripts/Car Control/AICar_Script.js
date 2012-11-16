@@ -61,7 +61,7 @@ function startSimulation()	{
 	totDistance = 0;
 	lastPosition = transform.position;
 	
-	Invoke("checkMoving", 5); // Check if the car is moving after the first 5 seconds
+	Invoke("checkMoving", 7); // Check if the car is moving after the first 7 seconds
 }
 
 function Start () {
