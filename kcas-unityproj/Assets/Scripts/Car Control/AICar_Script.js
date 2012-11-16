@@ -68,7 +68,8 @@ function Start () {
 	// I usually alter the center of mass to make the car more stable. I'ts less likely to flip this way.
 	rigidbody.centerOfMass.y = -1.5;
 	
-	startPoint = GameObject.Find("Track0").active ? GameObject.Find("Track0/StartPoint") : GameObject.Find("Track1/StartPoint");
+	startPoint = GameObject.Find("StartPoint");
+	
 	
 	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
 	brainComponent.brain = new NeuralNetwork();
@@ -153,7 +154,7 @@ function FixedUpdate () {
 /*	This function checks if the car has made a distance higher that 5.
 	If not, this simulation restarts */
 function checkMoving() {
-	if (totDistance < 5) {
+	if (avgSpeed < 3) {
 		restartSimulation();
 	}
 }

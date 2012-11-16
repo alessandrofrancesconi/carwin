@@ -90,8 +90,9 @@ function Update () {
 	
 	// discretize front and side collision distances in 'numDiscretDistance' parts
 	var interval = Mathf.Round(rayLength / numDiscretDistance);
-	for (var ii = 0; ii < numDiscretDistance ; ii++) {
-		var leftLim = ii * interval;
+	var i : int;
+	for (i = 0; i < numDiscretDistance ; i++) {
+		var leftLim = i * interval;
 		var rightLim = leftLim + interval - 1;
 		
 		if (frontCollisionDist >= leftLim && frontCollisionDist <= rightLim) {
@@ -99,8 +100,8 @@ function Update () {
 			break;
 		}
 	}
-	for (var iii = 0; iii < numDiscretDistance ; iii++) {
-		leftLim = iii * interval;
+	for (i = 0; i < numDiscretDistance ; i++) {
+		leftLim = i * interval;
 		rightLim = leftLim + interval - 1;
 		
 		if (leftCollisionDist >= leftLim && leftCollisionDist <= rightLim) {
@@ -108,8 +109,8 @@ function Update () {
 			break;
 		}
 	}
-	for (var iiii = 0; iiii < numDiscretDistance ; iiii++) {
-		leftLim = iiii * interval;
+	for (i = 0; i < numDiscretDistance ; i++) {
+		leftLim = i * interval;
 		rightLim = leftLim + interval - 1;
 		
 		if (rightCollisionDist >= leftLim && rightCollisionDist <= rightLim) {
