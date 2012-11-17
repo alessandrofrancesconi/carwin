@@ -174,9 +174,6 @@ public class NeuralNetwork {
 				this.inputs = new float[inputCount];
 				// populate weights randomly
 				this.weights = new float[inputCount];
-				/*for (weight in weights) {
-					weight = Random.Range(-2.0, 2.0); // initialize each weight with  a random number between -2.0 and 2.0
-				}*/
 			}
 			
 			public function SetInputs(inputs : float[]) {

@@ -76,7 +76,6 @@ function Start () {
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
 	geneticComponent.population = new Population(16, brainComponent.brain.GetTotalWeights().length);
-	geneticComponent.population.InitRandomChromosomes();
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
@@ -192,12 +191,14 @@ function ShiftGears() {
 /*	if the car collides (with a wall), we save the fitness of current chromosome 
 	and restart the simulation */
 function OnCollisionStay(collision : Collision) {
-	for (var contact : ContactPoint in collision.contacts) {
-        if (contact.normal != Vector3.up)	{
-        	restartSimulation();
-        	break;
-        }
-    }
+	if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
+		for (var contact : ContactPoint in collision.contacts) {
+			if (contact.normal != Vector3.up)	{
+				restartSimulation();
+				break;
+			}
+		}
+	}
 }
 
 
@@ -223,7 +224,7 @@ function restartSimulation() {
 function OnGUI () {
 	var boxWidth = 180;
 	GUI.Box (Rect (Screen.width-boxWidth, 0, boxWidth,  Screen.height), "STATS");
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Distance : " + totDistance);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 80, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);
 }

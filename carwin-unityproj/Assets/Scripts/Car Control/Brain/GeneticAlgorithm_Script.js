@@ -1,8 +1,11 @@
 #pragma strict
 
+public enum GA_FITNESS_MODE {
+	STRICT = 0,
+	LAZY = 1
+};
+public var ga_FitnessMode : int = parseInt(GA_FITNESS_MODE.STRICT);
 public var population : Population;
-
-
 
 /*
 This is a set of chromosomes, and this is sorted (chromosomes with higher fitness
@@ -40,13 +43,13 @@ public class Population	{
 	function NewGeneration() {
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
-		var crossOverProb : float = 0.75f;
+		var crossOverProb : float = 0.85f;
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
 			var firstChrom = this.RouletteWheel();
 			var secChrom = this.RouletteWheel();
 			
-			// do a crossover with probability 75%
+			// do a crossover with probability 85%
 			if(Random.value <= crossOverProb) {
 				var chromosomePair : Chromosome[] = this.CrossOver(firstChrom, secChrom);
 				newChromosomes[i] = chromosomePair[0];
@@ -66,15 +69,6 @@ public class Population	{
 		this.currentPopulation ++;
 		
 		this.chromosomes = newChromosomes;
-	}
-	
-	/* Fill the population with random generated chromosomes*/
-	function InitRandomChromosomes()	{
-		for(chromosome in this.chromosomes) {
-			for (weight in chromosome.GetWeights())	{
-				weight = Random.Range(-2.0, 2.0);
-			}
-		}
 	}
 	
 	function GetChromosomes() : Chromosome[] {
@@ -145,7 +139,7 @@ public class Population	{
 	}
 		
 	/*	"Roulette Wheel" is a method to extract a chromosome by looking at its fitness value:
-		if some chromosome's fitness is higher than another, then that chromosome as more 
+		if some chromosome's fitness is higher than another, then that chromosome has more 
 		possibilities to be taken.
 		- [Sum] Calculate sum of all chromosome fitnesses in population - sum S.
 	    - [Select] Generate random number from interval (0,S) - r.
@@ -171,7 +165,7 @@ public class Population	{
 				selectedChrom++;
 			}
 		}
-		Debug.Log("Roulette Wheel choosed #" + selectedChrom);
+		Debug.Log("Roulette Wheel chosen #" + selectedChrom);
 		return this.chromosomes[selectedChrom];
 	}
 	
@@ -180,7 +174,7 @@ public class Population	{
 		var mutationProb : float = 0.008f; // each weight has 0.8% of probability to be mutated
 		for (weight in chromosome.GetWeights()) {
 			if (Random.value <= mutationProb) {
-				weight += Random.Range(-0.1, 0.1);
+				weight += Random.Range(-0.3, 0.3);
 				Debug.Log ("Weight mutated!");
 			}
 		}
@@ -193,16 +187,19 @@ public class Population	{
 	Adjusting weights means adjusting the output of the NN
 	*/
 	public class Chromosome	{
-		private var fitness:int;
-		private var weights:float[];
+		private var fitness : int;
+		private var weights : float[];
 		
 		function Chromosome(wCount : int) {
-			this.fitness = 0.0f;
+			this.fitness = 0;
 			this.weights = new float[wCount];
+			for (weight in this.weights) {
+				weight = Random.Range(-2.0, 2.0);
+			}
 		}
 		
 		function Chromosome(weights : float[]) {
-			this.fitness = 0.0f;
+			this.fitness = 0;
 			this.weights = weights;
 		}
 		
@@ -210,17 +207,17 @@ public class Population	{
 		This function return the fitness of a chromosome.
 		Higher fitness means highest probability to be selected for crossover.
 		*/
-		public function SetFitness(f:int)	{
+		public function SetFitness(f : int) {
 			this.fitness = f;
 		}
-		public function GetFitness():int	{
+		public function GetFitness() : int {
 			return this.fitness;
 		}
 		
-		public function SetWeights(w:float[])	{
+		public function SetWeights(w : float[]) {
 			this.weights = w;
 		}
-		public function GetWeights():float[]	{
+		public function GetWeights() : float[] {
 			return this.weights;
 		}
 	}

@@ -34,12 +34,12 @@ function OnGUI () {
 		// guiTime is the number of milliseconds passed from startTime
 	   	var guiTime = Time.time - startTime;
 	   	var textTime = String.Format ("{0:00}:{1:00}:{2:000}", guiTime / 60, guiTime % 60, (guiTime * 100) % 100); 
-	   	GUI.Label (Rect (Screen.width -200, 25, 100, 30), textTime);
+	   	GUI.Label (Rect (20, 25, 100, 30), textTime);
 		
 		var i : int = 2;
 		for (var lapTime : float in totalTimes) {
 			textTime = (i-1) + ") " + String.Format ("{0:00}:{1:00}:{2:000}", lapTime / 60, lapTime % 60, (lapTime * 100) % 100); 
-			GUI.Label (Rect (Screen.width -190, 25*i, 100, 30), textTime);
+			GUI.Label (Rect (30, 25*i, 100, 30), textTime);
 			i++;
 		}
    	}
