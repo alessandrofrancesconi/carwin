@@ -1,0 +1,14 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Car Control\AICar_Script.js">
+    <Files>
+      <File FileName="Assets\Scripts\Car Control\AICar_Script.js" Line="116" Column="61" />
+      <File FileName="Assets\Scripts\Car Control\RayCalc_Script.js" Line="91" Column="58" />
+      <File FileName="Assets\Scripts\Car Control\Brain\GeneticAlgorithm_Script.js" Line="160" Column="24" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

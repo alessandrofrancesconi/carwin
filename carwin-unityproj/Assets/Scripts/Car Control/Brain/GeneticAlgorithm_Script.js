@@ -174,7 +174,7 @@ public class Population	{
 		var mutationProb : float = 0.008f; // each weight has 0.8% of probability to be mutated
 		for (weight in chromosome.GetWeights()) {
 			if (Random.value <= mutationProb) {
-				weight += Random.Range(-0.3, 0.3);
+				weight += Random.Range(-0.2, 0.2);
 				Debug.Log ("Weight mutated!");
 			}
 		}

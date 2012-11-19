@@ -113,7 +113,7 @@ function FixedUpdate () {
 	
 	var outputs : float[] = brainComponent.brain.GetOutputs();
 	FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * outputs[parseInt(NN_OUTPUT.ACCELERATION)];
-	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 20 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
+	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 16 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
 
 	totDistance += Vector3.Distance(transform.position, lastPosition); 
 	lastPosition = transform.position;
@@ -226,5 +226,14 @@ function OnGUI () {
 	GUI.Box (Rect (Screen.width-boxWidth, 0, boxWidth,  Screen.height), "STATS");
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 80, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);/*
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Weights: ");
+	var space = 0;
+	for (weight in geneticComponent.population.GetCurrentChromosome().GetWeights())
+	{
+		GUI.Label (Rect (Screen.width-boxWidth + 10, 160 + space, boxWidth - 10, 20), " " + 
+			weight);
+		space += 20;
+	}*/
+	
 }
