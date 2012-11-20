@@ -75,7 +75,7 @@ function Start () {
 	brainComponent.brain = new NeuralNetwork();
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
-	geneticComponent.population = new Population(16, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(14, brainComponent.brain.GetTotalWeights().length);
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	

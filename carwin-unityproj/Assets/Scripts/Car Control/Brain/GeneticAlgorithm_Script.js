@@ -130,10 +130,8 @@ public class Population	{
 		}
 		
 		var chromPair : Chromosome[] = new Chromosome[2];
-		chromPair[0] = new Chromosome( totWeights );
-		chromPair[0].SetWeights(weights1);
-		chromPair[1] = new Chromosome( totWeights );
-		chromPair[1].SetWeights(weights2);
+		chromPair[0] = new Chromosome(weights1);
+		chromPair[1] = new Chromosome(weights2);
 		
 		return chromPair;
 	}
@@ -171,7 +169,7 @@ public class Population	{
 	
 	/* Perform a random mutation of a chromosome. */
 	function Mutate(chromosome : Chromosome) : Chromosome	{
-		var mutationProb : float = 0.008f; // each weight has 0.8% of probability to be mutated
+		var mutationProb : float = 0.005f; // each weight has 0.8% of probability to be mutated		
 		for (weight in chromosome.GetWeights()) {
 			if (Random.value <= mutationProb) {
 				weight += Random.Range(-0.2, 0.2);
