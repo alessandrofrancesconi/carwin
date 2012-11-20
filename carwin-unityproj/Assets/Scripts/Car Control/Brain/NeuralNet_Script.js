@@ -172,8 +172,10 @@ public class NeuralNetwork {
 			
 			function NN_Neuron(inputCount : int) {
 				this.inputs = new float[inputCount];
-				// populate weights randomly
 				this.weights = new float[inputCount];
+				for (weight in this.weights) {
+					weight = Random.Range(-1.0, 1.0);
+				}
 			}
 			
 			public function SetInputs(inputs : float[]) {

@@ -1,4 +1,4 @@
-// ----------- CAR TUTORIAL SAMPLE PROJECT, ? Andrew Gotow 2009 -----------------
+// ----------- CAR TUTORIAL SAMPLE PROJECT, ? Ansetfdrew Gotow 2009 -----------------
 
 // Here's the basic car script described in my tutorial at www.gotow.net/andrew/blog.
 // A Complete explaination of how this script works can be found at the link above, along
@@ -75,7 +75,7 @@ function Start () {
 	brainComponent.brain = new NeuralNetwork();
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
-	geneticComponent.population = new Population(14, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(24, brainComponent.brain.GetTotalWeights().length);
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
@@ -88,7 +88,8 @@ function updateFitness () {
 	// more checks on curve type and distance to internal wall...
 	var currentFitness : int;
 	
-	currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);
+	/*currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);*/
+	currentFitness = Mathf.RoundToInt(totDistance*3 + avgSpeed*2);
 	geneticComponent.population.SetCurrentCromosomeFitness(currentFitness);
 }
 
@@ -226,8 +227,10 @@ function OnGUI () {
 	GUI.Box (Rect (Screen.width-boxWidth, 0, boxWidth,  Screen.height), "STATS");
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 80, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);/*
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Weights: ");
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestFitness);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "in generation: " + geneticComponent.population.bestGeneration);
+	/*GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Weights: ");
 	var space = 0;
 	for (weight in geneticComponent.population.GetCurrentChromosome().GetWeights())
 	{

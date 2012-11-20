@@ -15,6 +15,9 @@ public class Population	{
 	private var chromosomes : Chromosome[];
 	private var currentChromosome : int;
 	public var currentPopulation : int;
+	/* keep track of best fitness and generation in vhich it is found */
+	public var bestFitness : int;
+	public var bestGeneration : int;
 	
 	/*
 	Create a population of cCount chromosomes, each one with wCount elements (weights).
@@ -28,6 +31,8 @@ public class Population	{
 		
 		this.currentPopulation = 0;
 		this.currentChromosome = 0;
+		this.bestFitness = 0;
+		this.bestGeneration = 0;
 	}
 	
 	/* save current population to a binary object */
@@ -41,9 +46,10 @@ public class Population	{
 	
 	/* Create a new population according to the fitness of the old chromosomes. */
 	function NewGeneration() {
+		this.currentPopulation = this.currentPopulation +1;
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
-		var crossOverProb : float = 0.85f;
+		var crossOverProb : float = 0.80f;
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
 			var firstChrom = this.RouletteWheel();
@@ -66,7 +72,7 @@ public class Population	{
 			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
 		}
 		
-		this.currentPopulation ++;
+		
 		
 		this.chromosomes = newChromosomes;
 	}
@@ -105,6 +111,10 @@ public class Population	{
 	
 	function SetCurrentCromosomeFitness(fit : int) {
 		this.chromosomes[this.currentChromosome].SetFitness(fit);
+		if (fit > this.bestFitness)	{
+			this.bestFitness = fit;
+			this.bestGeneration = this.currentPopulation;
+		}
 	}
 	
 	/* Creates 2 new chromosomes by crossovering 2 input chromosomes */
@@ -192,7 +202,7 @@ public class Population	{
 			this.fitness = 0;
 			this.weights = new float[wCount];
 			for (weight in this.weights) {
-				weight = Random.Range(-2.0, 2.0);
+				weight = Random.Range(-1.0, 1.0);
 			}
 		}
 		
