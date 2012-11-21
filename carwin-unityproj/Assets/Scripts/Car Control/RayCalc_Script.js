@@ -3,9 +3,9 @@
 public var turnAngle : int;
 
 /* distance of the collision in discrete values */
-public var frontCollisionDist : float;
-public var leftCollisionDist : float;
-public var rightCollisionDist : float;
+public var frontCollisionDist : int;
+public var leftCollisionDist : int;
+public var rightCollisionDist : int;
 
 public var rayLength : int = 40;
 
@@ -88,6 +88,8 @@ function Update () {
 		rightCollisionDist = rightSideHit.distance;
 	}
 	
+	
+	/*
 	// discretize front and side collision distances in 'numDiscretDistance' parts
 	var interval = Mathf.Round(rayLength / numDiscretDistance);
 	var i : int;
@@ -118,5 +120,5 @@ function Update () {
 			break;
 		}
 	}
-	
+	*/
 }

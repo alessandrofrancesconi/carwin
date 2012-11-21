@@ -1,11 +1,11 @@
-// ----------- CAR TUTORIAL SAMPLE PROJECT, ? Ansetfdrew Gotow 2009 -----------------
-
-// Here's the basic car script described in my tutorial at www.gotow.net/andrew/blog.
-// A Complete explaination of how this script works can be found at the link above, along
-// with detailed instructions on how to write one of your own, and tips on what values to 
-// assign to the script variables for it to work well for your application.
-
-// Contact me at Maxwelldoggums@Gmail.com for more information.
+/* 
+	The original car's model and movement/physics system was made by 
+	Ansetfdrew Gotow - 2009 - maxwelldoggums@gmail.com
+	
+	http://www.gotow.net/andrew/blog/?page_id=78
+	
+	We edited it to best fit our purposes
+*/
 
 import System;
 
@@ -32,6 +32,7 @@ private var rayComponent : Component;
 
 private var startPoint : GameObject;
 
+public var inputs : float[];
 private var avgSpeed : float; // average driving speed
 private var totDistance : float; // the distance made by the car
 private var lastPosition : Vector3; // the position of the car in the current frame
@@ -75,7 +76,7 @@ function Start () {
 	brainComponent.brain = new NeuralNetwork();
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
-	geneticComponent.population = new Population(24, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(14, brainComponent.brain.GetTotalWeights().length);
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
@@ -88,8 +89,8 @@ function updateFitness () {
 	// more checks on curve type and distance to internal wall...
 	var currentFitness : int;
 	
-	/*currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);*/
-	currentFitness = Mathf.RoundToInt(totDistance*3 + avgSpeed*2);
+	currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);
+	//currentFitness = Mathf.RoundToInt(totDistance*3 + avgSpeed*2);
 	geneticComponent.population.SetCurrentCromosomeFitness(currentFitness);
 }
 
@@ -102,7 +103,7 @@ function FixedUpdate () {
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
 	ShiftGears();
 	
-	var inputs : float[] = new float[parseInt(NN_INPUT.COUNT)];
+	inputs = new float[parseInt(NN_INPUT.COUNT) - 1];
 	inputs[parseInt(NN_INPUT.SPEED)] = (rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
 	inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = rayComponent.frontCollisionDist;
 	inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = rayComponent.leftCollisionDist;
@@ -147,7 +148,6 @@ function FixedUpdate () {
 				fs.WriteByte(data[i]);
 			}
         }
-        
     }
 }
 

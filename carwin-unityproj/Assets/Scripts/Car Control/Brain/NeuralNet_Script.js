@@ -54,7 +54,7 @@ public class NeuralNetwork {
 		}
 		
 		this.inputs = this.outputs;
-		// Process the output through the output layer to 
+		// Process the output through the output layer
 		this.outputs = this.outputLayer.Evaluate(this.inputs);
 	}
 	
@@ -143,7 +143,7 @@ public class NeuralNetwork {
 				
 				var i : int;
 				for (i = 0; i < input.length; i++) {
-					activation += input[i] * weights[i];
+					activation += (input[i] * weights[i]);
 				}
 
 				// calc the sigmoid value
