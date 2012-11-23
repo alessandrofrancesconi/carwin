@@ -15,11 +15,11 @@ Google Sketchup (http://sketchup.google.com/)
 The reason of this choice is that we needed a fast way to represent 3D models with physical properties, but there are no 
 limitations to develop projects like this in other ways, languages or systems.
 
-Usage and important files
--------------------------
+Usage 
+-----
 
-* For testing the final version of Carwin just go into carwin-build folder and open the html file. 
-Note that you must install the Unity3D Player to run it.
+* To test the final version of Carwin just go into carwin-build folder and open the html file. 
+Note that you must install the Unity3D Web Player to run it.
 * For hackers, go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.
 The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!
 
