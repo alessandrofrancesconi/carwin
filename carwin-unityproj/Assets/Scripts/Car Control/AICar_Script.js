@@ -1,7 +1,12 @@
 /* 
-	The original car's model and movement/physics system was made by 
-	Ansetfdrew Gotow - 2009 - maxwelldoggums@gmail.com
-	http://www.gotow.net/andrew/blog/?page_id=78
+	CARWIN - A self-driving car implemented with neural networks and genetic algorithms 
+	by Buzzoni Marco and Francesconi Alessandro - University of Bologna 2012
+	http://www.github.com/alessandrofrancesconi/carwin
+	
+	
+	The original car's model and movement system was made by 
+	Ansetfdrew Gotow - maxwelldoggums@gmail.com
+	http://www.gotow.net/andrew/blog/?page_id=78 (2009)
 	
 	Neural Network with Genetic Algorithm implementation is based on two main resources:
 	http://www.ai-junkie.com/ann/evolved/nnt1.html
@@ -27,18 +32,39 @@ var MaxEngineRPM : float = 3000.0;
 var MinEngineRPM : float = 1000.0;
 private var EngineRPM : float = 0.0;
 
-private var brainComponent : Component;
-private var geneticComponent : Component;
-private var rayComponent : Component;
+// These variables are three precious components for the car self-driving system:
+private var brainComponent : Component; // Contains the neural network data structure
+private var geneticComponent : Component; // Contains the genetic algorithm data structure
+private var rayComponent : Component; // Contains the collection of rays casted from the car
 
-private var startPoint : GameObject;
+private var startPoint : GameObject; // This will store the startPoint of the active track
 
-public var inputs : float[];
+public var inputs : float[]; // Input vector, built every frame, that will be transmitted to the neural network
 private var avgSpeed : float; // average driving speed
 private var totDistance : float; // the distance made by the car
 private var lastPosition : Vector3; // the position of the car in the current frame
 private var totFrames : int; // frames passed from the simulation start (used for avgSpeed)
 private var totSpeed : int; // (used for avgSpeed)
+
+function Start () {
+	// Alter the center of mass to make the car more stable. I'ts less likely to flip this way.
+	rigidbody.centerOfMass.y = -1.5;
+	
+	startPoint = GameObject.Find("StartPoint"); // get the startPoint of the active track
+	
+	// initialize all the main components
+	
+	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
+	brainComponent.brain = new NeuralNetwork();
+	
+	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
+	// we create a population of 14 chromosomes, each one with the total number of weights of the neural network
+	geneticComponent.population = new Population(14, brainComponent.brain.GetTotalWeights().length);
+	
+	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
+	
+	startSimulation();
+}
 
 /*	This function starts a new simulation  */
 function startSimulation()	{
@@ -56,37 +82,20 @@ function startSimulation()	{
 	);
 	
 	// reset the fitness value and other status variables
-	//geneticComponent.population.ResetCurrentCromosomeFitness();
 	totFrames = 0;
 	totSpeed = 0;
 	avgSpeed = 0;
 	totDistance = 0;
 	lastPosition = transform.position;
 	
-	Invoke("checkMoving", 7); // Check if the car is moving after the first 7 seconds
+	Invoke("checkMoving", 5); // Check if the car is moving after the first 5 seconds
 }
 
-function Start () {
-	// I usually alter the center of mass to make the car more stable. I'ts less likely to flip this way.
-	rigidbody.centerOfMass.y = -1.5;
-	
-	startPoint = GameObject.Find("StartPoint");
-	
-	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
-	brainComponent.brain = new NeuralNetwork();
-	
-	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
-	geneticComponent.population = new Population(14, brainComponent.brain.GetTotalWeights().length);
-	
-	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
-	
-	startSimulation();
-}
-
-/* */
-function updateFitness () {
-	// for now it's a very basic increment, but in future there will be
-	// more checks on curve type and distance to internal wall...
+/* the fitness update can be a very basic increment, or a more advanced operation.
+	for now we consider both actual distance and average speed, but in future there can be
+	more checks, e.g. on curve type and distance to internal wall (this will probably make the 
+	car drive "better", but will also increase the overall complexity of the neural network) */
+function updateFitness () {	
 	var currentFitness : int;
 	
 	currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);
@@ -103,22 +112,27 @@ function FixedUpdate () {
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
 	ShiftGears();
 	
-	rayComponent.CalcCollisions(); // force Rays to calc collisions now
+	rayComponent.CalcCollisions(); // force rays to calc all the collisions now
 	
+	// fill the input vector with the actual informations coming from the car's sensors
 	inputs = new float[parseInt(NN_INPUT.COUNT)];
-	inputs[parseInt(NN_INPUT.SPEED)] = Mathf.RoundToInt(rigidbody.velocity.magnitude)+1;//(rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
+	inputs[parseInt(NN_INPUT.SPEED)] = Mathf.RoundToInt(rigidbody.velocity.magnitude)+1; 
 	inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = rayComponent.frontCollisionDist;
 	inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = rayComponent.leftCollisionDist;
 	inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)] = rayComponent.rightCollisionDist;
 	inputs[parseInt(NN_INPUT.TURN_ANGLE)] = rayComponent.turnAngle;
 	
-	brainComponent.brain.SetInputs(inputs);
-	brainComponent.brain.Update();
+	brainComponent.brain.SetInputs(inputs); // pass the inputs to the neural network
+	brainComponent.brain.Update(); // brain start thinking....
 	
-	var outputs : float[] = brainComponent.brain.GetOutputs();
+	var outputs : float[] = brainComponent.brain.GetOutputs(); // ... and we have outputs!
+	// set the acceleration factor (from 0.0 to 1.0)
 	FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * outputs[parseInt(NN_OUTPUT.ACCELERATION)];
+	// and steering (from -1.0 (left) to 1.0 (right)) - multiply it by 15 to make tighter turns
+	// also, we do <force>*2-1 because the original value goes from 0.0 to 1.0
 	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 15 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
 
+	// update distance made and avg speed
 	totDistance += Vector3.Distance(transform.position, lastPosition); 
 	lastPosition = transform.position;
 	totSpeed += Mathf.RoundToInt(rigidbody.velocity.magnitude);
@@ -152,14 +166,14 @@ function FixedUpdate () {
 }
 
 /*	This function checks if the car is moving with an acceptable avg speed.
-	If not, this simulation restarts */
+	If not, this simulation restarts. We don't need slow cars! */
 function checkMoving() {
 	if (avgSpeed < 3) {
 		restartSimulation();
 	}
 }
 
-/*	this funciton shifts the gears of the vehcile, it loops through all the gears, checking which will make
+/*	this function shifts the gears of the vehcile, it loops through all the gears, checking which will make
 	the engine RPM fall within the desired range. The gear is then set to this "appropriate" value. */
 function ShiftGears() {
 	if ( EngineRPM >= MaxEngineRPM ) {
@@ -192,6 +206,8 @@ function ShiftGears() {
 /*	if the car collides (with a wall), we save the fitness of current chromosome 
 	and restart the simulation */
 function OnCollisionStay(collision : Collision) {
+	// for now the fitness mode is always set to STRICT, that mean that the simulation restarts on EVERY KIND of 
+	// collision. With a lazy mode, instead, we could ignore some "light" collisions and continue
 	if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
 		for (var contact : ContactPoint in collision.contacts) {
 			if (contact.normal != Vector3.up)	{
@@ -202,14 +218,13 @@ function OnCollisionStay(collision : Collision) {
 	}
 }
 
-
 /*	reset simulation, but with new chromosomes */
 function restartSimulation() {
 	
 	Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
 		+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness());
 	
-	// go throught next chromosome
+	// go throught the next chromosome
 	geneticComponent.population.SetNextChromosome();
 	
 	if(geneticComponent.population.IsLastChromosome())	{

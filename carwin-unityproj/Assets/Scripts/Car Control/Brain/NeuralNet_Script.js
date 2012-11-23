@@ -2,6 +2,7 @@
 
 public var brain : NeuralNetwork;
 
+// input types passed to the neural network by the car's sensors (see AICar_Script -> FixedUpdate())
 public enum NN_INPUT { 
 	SPEED = 0, // current speed of the car
 	FRONT_COLLISION_DIST, // distance from the nearest front collision point (taken from RayTracing method)
@@ -12,8 +13,9 @@ public enum NN_INPUT {
 	COUNT
 };
 
+// output types calculated by the neural network and injected to the car's movement controls
 public enum NN_OUTPUT { 
-	STEERING_FORCE = 0, 
+	STEERING_FORCE = 0,
 	ACCELERATION,
 	
 	COUNT
@@ -25,13 +27,13 @@ public class NeuralNetwork {
 	
 	var hiddenLayers : NN_Layer[]; // hidden layers
 	
-	var outputs : float[];
 	var outputLayer : NN_Layer;
+	var outputs : float[];
 	
-	// build and initialize the entire neural network
+	/* build and initialize the entire neural network */
 	function NeuralNetwork() {
 		var HIDDEN_LAYERS_COUNT : int = 1; // 1 hidden layer is enough...
-		var NEURONS_PER_HIDDEN : int = 24; // # neurons in each hidden layer
+		var NEURONS_PER_HIDDEN : int = 24; // # neurons in each hidden layer. A greater number means more flexibility on output values
 		
 		this.inputs = new float[parseInt(NN_INPUT.COUNT)];
 		
@@ -44,13 +46,14 @@ public class NeuralNetwork {
 		this.outputLayer = new NN_Layer(parseInt(NN_OUTPUT.COUNT), NEURONS_PER_HIDDEN);
 	}
 	
+	/* Update is called after every new input set. It calculates the content of the output vector */
 	public function Update() {
 		this.outputs = new float[parseInt(NN_OUTPUT.COUNT)]; // clear outputs
 		
 		var i : int = 0;
 		for (layer in this.hiddenLayers) {
 			if (i > 0) this.inputs = this.outputs;
-			this.outputs = layer.Evaluate(this.inputs);
+			this.outputs = layer.Evaluate(this.inputs); // evaluate the state of each neuron in the middle layer
 			i++;
 		}
 		
@@ -100,6 +103,7 @@ public class NeuralNetwork {
 		return output;
 	}
 	
+	/* Take a (big?) vector of weights an transmit them to the entire network */
 	public function SetTotalWeights(weights : float[]) {
 		var i : int = 0;
 		
@@ -128,10 +132,11 @@ public class NeuralNetwork {
 		function NN_Layer(neuronsCount : int, inputCount : int) {
 			this.neurons = new NN_Neuron[neuronsCount];
 			for (neuron in this.neurons) {
-				neuron = new NN_Neuron(inputCount);
+				neuron = new NN_Neuron(inputCount); // each neuron has 'inputCount' inputs
 			}
 		}
 		
+		/* The magic part: each neuron is activated (or not) by looking and its inputs and weights */
 		public function Evaluate(input : float[]) {
 			var dynOutput = new Array();
 			
@@ -200,5 +205,4 @@ public class NeuralNetwork {
 
 
 function Start () {}
-
 function Update () {}

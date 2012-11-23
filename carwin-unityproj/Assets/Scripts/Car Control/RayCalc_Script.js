@@ -4,17 +4,16 @@ public var rayLength : int = 50;
 
 public var turnAngle : int;
 
-/* distance of the collision in discrete values */
+// distance of the collision in integer values (from 0 to rayLength)
 public var frontCollisionDist : int;
 public var leftCollisionDist : int;
 public var rightCollisionDist : int;
 
+// the rays on the car object
 private var frontLeftRay : Component;
 private var frontRightRay : Component;
 private var sideLeftRay : Component;
 private var sideRightRay : Component;
-
-private var numDiscretDistance : int = 8; // how many discretizations for Collision Distance?
 
 function Start () {
 	frontLeftRay = transform.Find("FrontLeftRay");
@@ -23,6 +22,7 @@ function Start () {
 	sideRightRay = transform.Find("SideRightRay");
 }
 
+/* this function must be called to get updated values from collision detectors (see AICar_Script) */
 function CalcCollisions () {
 	var leftHit : RaycastHit;
 	var rightHit : RaycastHit;
@@ -69,52 +69,18 @@ function CalcCollisions () {
 	else {
 		// no collisions, it's a straight stretch
 		turnAngle = 0.0f;	
-		frontCollisionDist = rayLength + 1;
+		frontCollisionDist = rayLength + 1; // 'rayLength + 1' it's like an "infinite" distance
 	}
 	
 	// check the side distance
 	if (!collisionSideLeft)
 		leftCollisionDist = rayLength + 1;
-	else	{
+	else {
 		leftCollisionDist = leftSideHit.distance;
 	}
 	if (!collisionSideRight)
 		rightCollisionDist = rayLength + 1;
-	else	{
+	else {
 		rightCollisionDist = rightSideHit.distance;
 	}
-	
-	
-	/*
-	// discretize front and side collision distances in 'numDiscretDistance' parts
-	var interval = Mathf.Round(rayLength / numDiscretDistance);
-	var i : int;
-	for (i = 0; i < numDiscretDistance ; i++) {
-		var leftLim = i * interval;
-		var rightLim = leftLim + interval - 1;
-		
-		if (frontCollisionDist >= leftLim && frontCollisionDist <= rightLim) {
-			frontCollisionDist = (leftLim + rightLim) / 2;
-			break;
-		}
-	}
-	for (i = 0; i < numDiscretDistance ; i++) {
-		leftLim = i * interval;
-		rightLim = leftLim + interval - 1;
-		
-		if (leftCollisionDist >= leftLim && leftCollisionDist <= rightLim) {
-			leftCollisionDist = (leftLim + rightLim) / 2;
-			break;
-		}
-	}
-	for (i = 0; i < numDiscretDistance ; i++) {
-		leftLim = i * interval;
-		rightLim = leftLim + interval - 1;
-		
-		if (rightCollisionDist >= leftLim && rightCollisionDist <= rightLim) {
-			rightCollisionDist = (leftLim + rightLim) / 2;
-			break;
-		}
-	}
-	*/
 }

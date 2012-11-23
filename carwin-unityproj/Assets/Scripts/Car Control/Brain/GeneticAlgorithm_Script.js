@@ -1,10 +1,12 @@
 #pragma strict
 
+// fitness mode will be used to make different fitness calculations....
 public enum GA_FITNESS_MODE {
 	STRICT = 0,
 	LAZY = 1
 }; 
-public var ga_FitnessMode : int = parseInt(GA_FITNESS_MODE.STRICT);
+public var ga_FitnessMode : int = parseInt(GA_FITNESS_MODE.STRICT); //.... but for now it's fixed to STRICT
+
 public var population : Population;
 
 /* This is a set of chromosomes, and this is sorted (chromosomes with higher fitness
@@ -13,7 +15,8 @@ public class Population	{
 	private var chromosomes : Chromosome[];
 	private var currentChromosome : int;
 	public var currentPopulation : int;
-	/* keep track of best fitness and population in which it is found */
+	
+	// keep track of best fitness and population in which it is found
 	public var bestFitness : int;
 	public var bestPopulation : int;
 	
@@ -42,17 +45,18 @@ public class Population	{
 	
 	/* Create a new population according to the fitness of the old chromosomes. */
 	function NewGeneration() {
-		this.currentPopulation = this.currentPopulation +1;
+		this.currentPopulation++;
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
-		var crossOverProb : float = 0.85f;
+		var crossOverProb : float = 0.85f; // high probability to have a crossover
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
-			var firstChrom = this.RouletteWheel();
+			// new chromosomes are chosen with the Roulette Wheel method...
+			var firstChrom = this.RouletteWheel(); // ...but we can force to have at least one instance of the best chromosome with 'this.GetBestChromosome()'
 			var secChrom = this.RouletteWheel();
 			
-			// do a crossover with probability 85%
 			if(Random.value <= crossOverProb) {
+				// do a crossover
 				var chromosomePair : Chromosome[] = this.CrossOver(firstChrom, secChrom);
 				newChromosomes[i] = chromosomePair[0];
 				newChromosomes[i+1] = chromosomePair[1];
@@ -63,7 +67,7 @@ public class Population	{
 				newChromosomes[i+1] = secChrom;
 			}
 			
-			// in both cases, try a mutation of each chromosome's weights with 0.8% of probability
+			// in both cases, try a mutation of each chromosome's weights with a low probability
 			newChromosomes[i] = this.Mutate(newChromosomes[i]);
 			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
 		}
@@ -111,25 +115,34 @@ public class Population	{
 		}
 	}
 	
-	/* Creates 2 new chromosomes by crossovering 2 input chromosomes */
+	/* return the best chromosome of the current population */
+	function GetBestChromosome() : Chromosome {
+		var best : Chromosome = this.chromosomes[0];
+		for (chromosome in this.chromosomes) {
+			if (chromosome.GetFitness() > best.GetFitness()) {
+				best = chromosome;
+			}
+		}
+		
+		return best;
+	}
+	
+	/*	Creates 2 new chromosomes (offspring) by crossovering 2 input chromosomes 
+		'firstChrom' is like the dad... 'secChrom' it's like the mum! */
 	function CrossOver(firstChrom : Chromosome, secChrom : Chromosome): Chromosome[] {
 		var totWeights : int = firstChrom.GetWeights().length;
-		var crossingPoint : int = Random.Range(0, totWeights - 2);
-		
-		// create two chromosomes starting from inputs
-		var newChromosome1 = new Chromosome(firstChrom.GetWeights());
-		var newChromosome2 = new Chromosome(secChrom.GetWeights());
+		var crossingPoint : int = Random.Range(0, totWeights - 1); // choose a random crossing point
 		
 		// crossover on weights
-		var weights1 : float[] = new float[totWeights];
-		var weights2 : float[] = new float[totWeights];
+		var weights1 : float[] = new float[totWeights]; // first "baby"
+		var weights2 : float[] = new float[totWeights]; // second "baby"
 		for (var i = 0; i < totWeights; i++)	{
 			if (i <= crossingPoint)	{
-				weights1[i] = newChromosome1.GetWeights()[i];
-				weights2[i] = newChromosome2.GetWeights()[i];
+				weights1[i] = firstChrom.GetWeights()[i];
+				weights2[i] = secChrom.GetWeights()[i];
 			}	else {
-				weights1[i] = newChromosome2.GetWeights()[i];
-				weights2[i] = newChromosome1.GetWeights()[i];
+				weights1[i] = secChrom.GetWeights()[i];
+				weights2[i] = firstChrom.GetWeights()[i];
 			}
 		}
 		
@@ -184,7 +197,7 @@ public class Population	{
 		return chromosome;
 	}
 
-	/* 	This element is an array of weights of the neural network.
+	/* 	Each chromosome contains an array of weights of the neural network.
 		Adjusting weights means adjusting the output of the NN */
 	public class Chromosome	{
 		private var fitness : int;
@@ -194,7 +207,7 @@ public class Population	{
 			this.fitness = 0;
 			this.weights = new float[wCount];
 			for (weight in this.weights) {
-				weight = Random.Range(-1.0, 1.0);
+				weight = Random.Range(-1.0, 1.0); // inital random value
 			}
 		}
 		
@@ -203,10 +216,8 @@ public class Population	{
 			this.weights = weights;
 		}
 		
-		/* 
-		This function return the fitness of a chromosome.
-		Higher fitness means highest probability to be selected for crossover.
-		*/
+		/* 	This function returns the fitness of a chromosome.
+			Higher fitness means higher probability to be selected for crossover (as Darwin told us...) */
 		public function SetFitness(f : int) {
 			this.fitness = f;
 		}
@@ -223,9 +234,5 @@ public class Population	{
 	}
 }
 
-/*
-Initializes the algorithm.
-*/
 function Start () {}
-
 function Update () {}
