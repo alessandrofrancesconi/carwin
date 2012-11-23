@@ -10,10 +10,18 @@ Connected with the developed neural network there is a genetic algorithm based o
 Requirements
 ------------
 
-The entire work has been made using the Unity3D Game Engine (http://www.unity3d.com), Blender (http://www.blender.org) and
+The entire work has been made using the Unity3D Game Engine 4.0 (http://www.unity3d.com), Blender (http://www.blender.org) and
 Google Sketchup (http://sketchup.google.com/)
 The reason of this choice is that we needed a fast way to represent 3D models with physical properties, but there are no 
 limitations to develop projects like this in other ways, languages or systems.
+
+Usage and important files
+-------------------------
+
+* For testing the final version of Carwin just go into carwin-build folder and open the html file. 
+Note that you must install the Unity3D Player to run it.
+* For hackers, go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.
+The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!
 
 Authors
 -------

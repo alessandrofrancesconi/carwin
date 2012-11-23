@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_0_0;UNITY_4_0;UNITY_STANDALONE_WIN;ENABLE_PROFILER;UNITY_EDITOR</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_WEBPLAYER;WEBPLUG;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_0_0;UNITY_4_0;ENABLE_PROFILER;UNITY_EDITOR</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -44,12 +44,12 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Car Control\AICar_Script.js" />
-     <Compile Include="Assets\Scripts\Car Control\Brain\GeneticAlgorithm_Script.js" />
-     <Compile Include="Assets\Scripts\Car Control\Brain\NeuralNet_Script.js" />
-     <Compile Include="Assets\Scripts\Car Control\RayCalc_Script.js" />
-     <Compile Include="Assets\Scripts\Car Control\RayDraw_Script.js" />
-     <Compile Include="Assets\Scripts\Car Control\WheelAlignment_Script.js" />
+     <Compile Include="Assets\Scripts\CarControl\AICar_Script.js" />
+     <Compile Include="Assets\Scripts\CarControl\Brain\GeneticAlgorithm_Script.js" />
+     <Compile Include="Assets\Scripts\CarControl\Brain\NeuralNet_Script.js" />
+     <Compile Include="Assets\Scripts\CarControl\RayCalc_Script.js" />
+     <Compile Include="Assets\Scripts\CarControl\RayDraw_Script.js" />
+     <Compile Include="Assets\Scripts\CarControl\WheelAlignment_Script.js" />
      <Compile Include="Assets\Scripts\FollowCamera_Script.js" />
      <Compile Include="Assets\Scripts\LapTime_Script.js" />
      <Compile Include="Assets\Scripts\TopCamera_Script.js" />
