@@ -1,10 +1,11 @@
 /* 
 	The original car's model and movement/physics system was made by 
 	Ansetfdrew Gotow - 2009 - maxwelldoggums@gmail.com
-	
 	http://www.gotow.net/andrew/blog/?page_id=78
 	
-	We edited it to best fit our purposes
+	Neural Network with Genetic Algorithm implementation is based on two main resources:
+	http://www.ai-junkie.com/ann/evolved/nnt1.html
+	http://www.obitko.com/tutorials/genetic-algorithms/index.php
 */
 
 import System;
@@ -50,7 +51,7 @@ function startSimulation()	{
 	GameObject.Find("LapCollider").GetComponent(LapTime_Script).Start();
 	
 	// set the NeuralNetwork weights by copying them from current chromosome
-	brainComponent.brain.SetTotalWeights( 
+	brainComponent.brain.SetTotalWeights(
 		geneticComponent.population.GetCurrentChromosome().GetWeights()
 	);
 	
@@ -103,7 +104,7 @@ function FixedUpdate () {
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
 	ShiftGears();
 	
-	inputs = new float[parseInt(NN_INPUT.COUNT) - 1];
+	inputs = new float[parseInt(NN_INPUT.COUNT)];
 	inputs[parseInt(NN_INPUT.SPEED)] = (rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
 	inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = rayComponent.frontCollisionDist;
 	inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = rayComponent.leftCollisionDist;
@@ -228,8 +229,9 @@ function OnGUI () {
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 80, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestFitness);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "in generation: " + geneticComponent.population.bestGeneration);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestFitness);
+	GUI.Label (Rect (Screen.width-boxWidth + 10, 180, boxWidth - 10, 20), "in generation: " + (geneticComponent.population.bestPopulation+1) + " of " + (geneticComponent.population.currentPopulation+1));
+	
 	/*GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Weights: ");
 	var space = 0;
 	for (weight in geneticComponent.population.GetCurrentChromosome().GetWeights())

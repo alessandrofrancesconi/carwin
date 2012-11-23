@@ -8,7 +8,6 @@ public enum NN_INPUT {
 	LEFT_COLLISION_DIST,
 	RIGHT_COLLISION_DIST,
 	TURN_ANGLE, // angle of the imminent curve (taken from RayTracing method), from -90 to 90
-	BIAS, // The bias will act as a threshold value, it's fixed to -1.0f
 	
 	COUNT
 };
@@ -23,14 +22,16 @@ public enum NN_OUTPUT {
 public class NeuralNetwork {
 	var inputs : float[];
 	var inputLayer : NN_Layer;
+	
 	var hiddenLayers : NN_Layer[]; // hidden layers
+	
 	var outputs : float[];
 	var outputLayer : NN_Layer;
 	
 	// build and initialize the entire neural network
 	function NeuralNetwork() {
 		var HIDDEN_LAYERS_COUNT : int = 1; // 1 hidden layer is enough...
-		var NEURONS_PER_HIDDEN : int = 8; // # neurons in each hidden layer
+		var NEURONS_PER_HIDDEN : int = 10; // # neurons in each hidden layer
 		
 		this.inputs = new float[parseInt(NN_INPUT.COUNT)];
 		
@@ -65,7 +66,6 @@ public class NeuralNetwork {
 		this.inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)];
 		this.inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)] = inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)];
 		this.inputs[parseInt(NN_INPUT.TURN_ANGLE)] = inputs[parseInt(NN_INPUT.TURN_ANGLE)];
-		this.inputs[parseInt(NN_INPUT.BIAS)] = -1.0f;
 	}
 	
 	public function GetOutputs() {
@@ -139,13 +139,15 @@ public class NeuralNetwork {
 			for (neuron in this.neurons) {
 				var activation : float = 0.0f;
 				
-				var weights : float[] = neuron.GetWeights();
-				
 				var i : int;
-				for (i = 0; i < input.length; i++) {
-					activation += (input[i] * weights[i]);
+				for (i = 0; i < neuron.GetInputs().length - 1; i++) {
+					activation += input[i] * neuron.GetWeights()[i];
 				}
-
+				
+				// Add the BIAS
+				// The bias will act as a threshold value, it's fixed to -1.0f
+				activation += neuron.GetWeights()[neuron.GetInputs().length] * -1.0f;
+				
 				// calc the sigmoid value
 				var sig : float = 1 / (1 + Mathf.Exp(-activation));
 				// and push it on outputs (dynamic array)
@@ -172,7 +174,7 @@ public class NeuralNetwork {
 			
 			function NN_Neuron(inputCount : int) {
 				this.inputs = new float[inputCount];
-				this.weights = new float[inputCount];
+				this.weights = new float[inputCount + 1]; // There will be an extra weight for the BIAS
 				for (weight in this.weights) {
 					weight = Random.Range(-1.0, 1.0);
 				}

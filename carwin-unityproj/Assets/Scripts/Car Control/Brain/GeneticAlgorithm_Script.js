@@ -7,21 +7,17 @@ public enum GA_FITNESS_MODE {
 public var ga_FitnessMode : int = parseInt(GA_FITNESS_MODE.STRICT);
 public var population : Population;
 
-/*
-This is a set of chromosomes, and this is sorted (chromosomes with higher fitness
-is the firsts, chromosomes with lower fitness is the lasts.
-*/
+/* This is a set of chromosomes, and this is sorted (chromosomes with higher fitness
+is the firsts, chromosomes with lower fitness is the lasts. */
 public class Population	{
 	private var chromosomes : Chromosome[];
 	private var currentChromosome : int;
 	public var currentPopulation : int;
-	/* keep track of best fitness and generation in vhich it is found */
+	/* keep track of best fitness and population in which it is found */
 	public var bestFitness : int;
-	public var bestGeneration : int;
+	public var bestPopulation : int;
 	
-	/*
-	Create a population of cCount chromosomes, each one with wCount elements (weights).
-	*/
+	/* Create a population of cCount chromosomes, each one with wCount elements (weights). */
 	function Population(cCount : int, wCount : int)	{
 		this.chromosomes = new Chromosome[cCount];
 		
@@ -32,7 +28,7 @@ public class Population	{
 		this.currentPopulation = 0;
 		this.currentChromosome = 0;
 		this.bestFitness = 0;
-		this.bestGeneration = 0;
+		this.bestPopulation = 0;
 	}
 	
 	/* save current population to a binary object */
@@ -49,7 +45,7 @@ public class Population	{
 		this.currentPopulation = this.currentPopulation +1;
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
-		var crossOverProb : float = 0.80f;
+		var crossOverProb : float = 0.85f;
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
 			var firstChrom = this.RouletteWheel();
@@ -71,8 +67,6 @@ public class Population	{
 			newChromosomes[i] = this.Mutate(newChromosomes[i]);
 			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
 		}
-		
-		
 		
 		this.chromosomes = newChromosomes;
 	}
@@ -113,7 +107,7 @@ public class Population	{
 		this.chromosomes[this.currentChromosome].SetFitness(fit);
 		if (fit > this.bestFitness)	{
 			this.bestFitness = fit;
-			this.bestGeneration = this.currentPopulation;
+			this.bestPopulation = this.currentPopulation;
 		}
 	}
 	
@@ -149,10 +143,10 @@ public class Population	{
 	/*	"Roulette Wheel" is a method to extract a chromosome by looking at its fitness value:
 		if some chromosome's fitness is higher than another, then that chromosome has more 
 		possibilities to be taken.
-		- [Sum] Calculate sum of all chromosome fitnesses in population - sum S.
-	    - [Select] Generate random number from interval (0,S) - r.
-	    - [Loop] Go through the population and sum fitnesses from 0 - sum s. 
-	    When the sum s is greater then r, stop and return the chromosome where you are. */
+		- [Sum] Calculate sum of all chromosome fitnesses in population -> S.
+	    - [Select] Generate random number from interval (0,S) -> r.
+	    - [Loop] Go through the population and sum fitnesses from 0 to S -> s. 
+	    When the sum s is greater than r, stop and return the chromosome where you are. */
 	private function RouletteWheel() : Chromosome {
 		var fitnessSum : int = 0;
 		var randomNum : int;
@@ -179,10 +173,10 @@ public class Population	{
 	
 	/* Perform a random mutation of a chromosome. */
 	function Mutate(chromosome : Chromosome) : Chromosome	{
-		var mutationProb : float = 0.005f; // each weight has 0.8% of probability to be mutated		
+		var mutationProb : float = 0.008f; // each weight has a low probability to be mutated		
 		for (weight in chromosome.GetWeights()) {
 			if (Random.value <= mutationProb) {
-				weight += Random.Range(-0.2, 0.2);
+				weight += Random.Range(-0.1, 0.1);
 				Debug.Log ("Weight mutated!");
 			}
 		}
@@ -190,10 +184,8 @@ public class Population	{
 		return chromosome;
 	}
 
-	/*
-	This element is an array of weights of the neural network.
-	Adjusting weights means adjusting the output of the NN
-	*/
+	/* 	This element is an array of weights of the neural network.
+		Adjusting weights means adjusting the output of the NN */
 	public class Chromosome	{
 		private var fitness : int;
 		private var weights : float[];
