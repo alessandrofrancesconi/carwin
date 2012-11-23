@@ -1,13 +1,13 @@
 #pragma strict
 
+public var rayLength : int = 40;
+
 public var turnAngle : int;
 
 /* distance of the collision in discrete values */
 public var frontCollisionDist : int;
 public var leftCollisionDist : int;
 public var rightCollisionDist : int;
-
-public var rayLength : int = 40;
 
 private var frontLeftRay : Component;
 private var frontRightRay : Component;
@@ -23,7 +23,7 @@ function Start () {
 	sideRightRay = transform.Find("SideRightRay");
 }
 
-function Update () {
+function CalcCollisions () {
 	var leftHit : RaycastHit;
 	var rightHit : RaycastHit;
 	var leftSideHit : RaycastHit;
@@ -36,10 +36,6 @@ function Update () {
 	var collisionSideLeft = Physics.Raycast (sideLeftRay.transform.position, sideLeftRay.transform.forward, leftSideHit, rayLength, Physics.kDefaultRaycastLayers);
 	var collisionSideRight = Physics.Raycast (sideRightRay.transform.position, sideRightRay.transform.forward, rightSideHit, rayLength, Physics.kDefaultRaycastLayers);
 	
-	//Debug.Log(leftHit.collider.name);
-	if ( collisionLeft && (leftHit.collider.name == "LapCollider") )
-		return;
-		
 	// check the front distance
 	if (collisionLeft && !collisionRight) {
 		// little right turn for stabilization 
@@ -69,7 +65,7 @@ function Update () {
 		}
 		
 		frontCollisionDist = (leftHit.distance + rightHit.distance) / 2;
-	}
+	} 
 	else {
 		// no collisions, it's a straight stretch
 		turnAngle = 0.0f;	

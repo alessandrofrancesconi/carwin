@@ -3,7 +3,7 @@
 public enum GA_FITNESS_MODE {
 	STRICT = 0,
 	LAZY = 1
-};
+}; 
 public var ga_FitnessMode : int = parseInt(GA_FITNESS_MODE.STRICT);
 public var population : Population;
 

@@ -17,12 +17,12 @@ var FrontRightWheel : WheelCollider;
 // These variables are for the gears, the array is the list of ratios. The script
 // uses the defined gear ratios to determine how much torque to apply to the wheels.
 var GearRatio : float[];
-var CurrentGear : int = 0;
+var CurrentGear : int = 0; 
 
 // These variables are just for applying torque to the wheels and shifting gears.
 // using the defined Max and Min Engine RPM, the script can determine what gear the
 // car needs to be in.
-var EngineTorque : float = 1000.0;
+var EngineTorque : float = 600.0;
 var MaxEngineRPM : float = 3000.0;
 var MinEngineRPM : float = 1000.0;
 private var EngineRPM : float = 0.0;
@@ -104,8 +104,10 @@ function FixedUpdate () {
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
 	ShiftGears();
 	
+	rayComponent.CalcCollisions(); // force Rays to calc collisions now
+	
 	inputs = new float[parseInt(NN_INPUT.COUNT)];
-	inputs[parseInt(NN_INPUT.SPEED)] = (rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
+	inputs[parseInt(NN_INPUT.SPEED)] = Mathf.RoundToInt(rigidbody.velocity.magnitude)+1;//(rigidbody.velocity.magnitude >= 0.1f ? rigidbody.velocity.magnitude : 0.0f);
 	inputs[parseInt(NN_INPUT.FRONT_COLLISION_DIST)] = rayComponent.frontCollisionDist;
 	inputs[parseInt(NN_INPUT.LEFT_COLLISION_DIST)] = rayComponent.leftCollisionDist;
 	inputs[parseInt(NN_INPUT.RIGHT_COLLISION_DIST)] = rayComponent.rightCollisionDist;

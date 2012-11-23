@@ -1,4 +1,4 @@
-#pragma strict
+#pragma strict 
 
 public var brain : NeuralNetwork;
 
@@ -31,7 +31,7 @@ public class NeuralNetwork {
 	// build and initialize the entire neural network
 	function NeuralNetwork() {
 		var HIDDEN_LAYERS_COUNT : int = 1; // 1 hidden layer is enough...
-		var NEURONS_PER_HIDDEN : int = 10; // # neurons in each hidden layer
+		var NEURONS_PER_HIDDEN : int = 24; // # neurons in each hidden layer
 		
 		this.inputs = new float[parseInt(NN_INPUT.COUNT)];
 		
@@ -144,9 +144,8 @@ public class NeuralNetwork {
 					activation += input[i] * neuron.GetWeights()[i];
 				}
 				
-				// Add the BIAS
-				// The bias will act as a threshold value, it's fixed to -1.0f
-				activation += neuron.GetWeights()[neuron.GetInputs().length] * -1.0f;
+				// Add the BIAS. It acts as a threshold value, it's fixed to -1.0f
+				activation += neuron.GetWeights()[neuron.GetWeights().length - 1] * -1.0f;
 				
 				// calc the sigmoid value
 				var sig : float = 1 / (1 + Mathf.Exp(-activation));
