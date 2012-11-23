@@ -56,7 +56,7 @@ function startSimulation()	{
 	);
 	
 	// reset the fitness value and other status variables
-	geneticComponent.population.ResetCurrentCromosomeFitness();
+	//geneticComponent.population.ResetCurrentCromosomeFitness();
 	totFrames = 0;
 	totSpeed = 0;
 	avgSpeed = 0;
@@ -71,7 +71,6 @@ function Start () {
 	rigidbody.centerOfMass.y = -1.5;
 	
 	startPoint = GameObject.Find("StartPoint");
-	
 	
 	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
 	brainComponent.brain = new NeuralNetwork();
@@ -98,7 +97,7 @@ function updateFitness () {
 function FixedUpdate () {
 	// This is to limith the maximum speed of the car, adjusting the drag probably isn't the best way of doing it,
 	// but it's easy, and it doesn't interfere with the physics processing.
-	rigidbody.drag = rigidbody.velocity.magnitude / 250;
+	rigidbody.drag = rigidbody.velocity.magnitude / 50;
 	
 	// Compute the engine RPM based on the average RPM of the two wheels, then call the shift gear function
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
@@ -118,7 +117,7 @@ function FixedUpdate () {
 	
 	var outputs : float[] = brainComponent.brain.GetOutputs();
 	FrontLeftWheel.motorTorque = FrontRightWheel.motorTorque = EngineTorque / GearRatio[CurrentGear] * outputs[parseInt(NN_OUTPUT.ACCELERATION)];
-	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 16 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
+	FrontLeftWheel.steerAngle = FrontRightWheel.steerAngle = 15 * (outputs[parseInt(NN_OUTPUT.STEERING_FORCE)]*2-1);
 
 	totDistance += Vector3.Distance(transform.position, lastPosition); 
 	lastPosition = transform.position;
@@ -128,22 +127,20 @@ function FixedUpdate () {
 	// update the fitness value
 	updateFitness();
 	
-	
+	// when the user presses SPACE, the current population is saved in an external file
     if (Input.GetKeyDown ("space"))	{
     	var data : byte[] = geneticComponent.population.save();
     	var path = ".";
     	var  newPath = System.IO.Path.Combine(path, "savedPopulations");
-    	 // Create the subfolder
+    	// Create the subfolder
         System.IO.Directory.CreateDirectory(newPath);
-
-        // Create a new file name. This example generates// a random string.
+		
         var newFileName = "population"+DateTime.Now.ToString("yyyyMMddHHmm")+".pop";
 
         // Combine the new file name with the path
         newPath = System.IO.Path.Combine(newPath, newFileName);
 
         // Create the file and write to it.
-        // DANGER: System.IO.File.Create will overwrite the file if it already exists. This can occur even with// random file names.
         if (!System.IO.File.Exists(newPath))
         {
             var fs = System.IO.File.Create(newPath);
@@ -154,7 +151,7 @@ function FixedUpdate () {
     }
 }
 
-/*	This function checks if the car has made a distance higher that 5.
+/*	This function checks if the car is moving with an acceptable avg speed.
 	If not, this simulation restarts */
 function checkMoving() {
 	if (avgSpeed < 3) {

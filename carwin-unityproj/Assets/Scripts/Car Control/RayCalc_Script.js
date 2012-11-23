@@ -1,6 +1,6 @@
 #pragma strict
 
-public var rayLength : int = 40;
+public var rayLength : int = 50;
 
 public var turnAngle : int;
 
