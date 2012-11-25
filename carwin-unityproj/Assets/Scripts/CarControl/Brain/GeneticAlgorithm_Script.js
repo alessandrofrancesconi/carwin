@@ -16,6 +16,9 @@ public class Population	{
 	private var currentChromosome : int;
 	public var currentPopulation : int;
 	
+	/* will contain the current best chromosome */
+	public var bestChromosome : Population.Chromosome;
+	
 	// keep track of best fitness and population in which it is found
 	public var bestFitness : int;
 	public var bestPopulation : int;
@@ -41,6 +44,32 @@ public class Population	{
 		var mem = new System.IO.MemoryStream();
 		formatter.Serialize(mem, this);
 		return mem.GetBuffer();
+	}
+	
+	/* save the best chromosome */
+	function saveBestChromosome() : void
+	{
+		var lines:String[] = new String[this.bestChromosome.GetWeights().length + 2];	// one for fitness, two for num of weights
+		lines[0] = this.bestChromosome.GetWeights().length.ToString();
+		var cEl = 1;
+		for (var elem in this.bestChromosome.GetWeights())	{
+			lines[cEl] = elem.ToString();
+			cEl ++;
+		}
+		lines[this.bestChromosome.GetWeights().length] = this.bestChromosome.GetFitness().ToString();
+		System.IO.File.WriteAllLines("bestchr.txt", lines);
+	}
+	
+	/* restore the best chromosome in the car */
+	function restoreBestChromosome() : float[]
+	{
+		//var lines : String[] = new String[this.bestChromosome.GetWeights().length + 1];
+		var lines : String[] = System.IO.File.ReadAllLines("bestchr.txt");
+		var elemsF : float[] = new float[System.Convert.ToUInt32(lines[0])];
+		for (var i = 1; i < System.Convert.ToUInt32(lines[0])+1; i++)	{
+			elemsF[i-1] = float.Parse(lines[i-1]);
+		}
+		return elemsF;
 	}
 	
 	/* Create a new population according to the fitness of the old chromosomes. */
@@ -112,6 +141,8 @@ public class Population	{
 		if (fit > this.bestFitness)	{
 			this.bestFitness = fit;
 			this.bestPopulation = this.currentPopulation;
+			// set the current as the best chromosome
+			this.bestChromosome = this.chromosomes[this.currentChromosome];
 		}
 	}
 	

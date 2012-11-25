@@ -32,6 +32,9 @@ var MaxEngineRPM : float = 3000.0;
 var MinEngineRPM : float = 1000.0;
 private var EngineRPM : float = 0.0;
 
+// check if we are in learning mode or in show mode
+public var isLearning : boolean;
+
 // These variables are three precious components for the car self-driving system:
 private var brainComponent : Component; // Contains the neural network data structure
 private var geneticComponent : Component; // Contains the genetic algorithm data structure
@@ -76,10 +79,17 @@ function startSimulation()	{
 	rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;
 	GameObject.Find("LapCollider").GetComponent(LapTime_Script).Start();
 	
-	// set the NeuralNetwork weights by copying them from current chromosome
-	brainComponent.brain.SetTotalWeights(
-		geneticComponent.population.GetCurrentChromosome().GetWeights()
-	);
+	if(isLearning)	{
+		// set the NeuralNetwork weights by copying them from current chromosome
+		brainComponent.brain.SetTotalWeights(
+			geneticComponent.population.GetCurrentChromosome().GetWeights()
+		);
+	}	else	{
+		// set the NeuralNetwork weights by copying them from current chromosome
+		brainComponent.brain.SetTotalWeights(
+			geneticComponent.population.restoreBestChromosome()
+		);
+	}
 	
 	// reset the fitness value and other status variables
 	totFrames = 0;
@@ -206,13 +216,15 @@ function ShiftGears() {
 /*	if the car collides (with a wall), we save the fitness of current chromosome 
 	and restart the simulation */
 function OnCollisionStay(collision : Collision) {
-	// for now the fitness mode is always set to STRICT, that mean that the simulation restarts on EVERY KIND of 
-	// collision. With a lazy mode, instead, we could ignore some "light" collisions and continue
-	if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
-		for (var contact : ContactPoint in collision.contacts) {
-			if (contact.normal != Vector3.up)	{
-				restartSimulation();
-				break;
+	if(isLearning)	{
+		// for now the fitness mode is always set to STRICT, that mean that the simulation restarts on EVERY KIND of 
+		// collision. With a lazy mode, instead, we could ignore some "light" collisions and continue
+		if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
+			for (var contact : ContactPoint in collision.contacts) {
+				if (contact.normal != Vector3.up)	{
+					restartSimulation();
+					break;
+				}
 			}
 		}
 	}
@@ -223,6 +235,9 @@ function restartSimulation() {
 	
 	Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
 		+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness());
+	
+	// save the best chromosome ever
+	geneticComponent.population.saveBestChromosome();
 	
 	// go throught the next chromosome
 	geneticComponent.population.SetNextChromosome();
