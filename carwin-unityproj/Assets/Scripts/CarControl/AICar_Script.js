@@ -154,7 +154,7 @@ function FixedUpdate () {
 }
 
 /* Update function is used only to catch keyboard inputs */
-function Update() {
+function Update() {	
 	if (Input.GetKeyDown(KeyCode.S)) {
 		geneticComponent.population.SaveBestChromosome();
 	}
@@ -175,7 +175,7 @@ function Update() {
 /*	This function checks if the car is moving with an acceptable avg speed.
 	If not, this simulation restarts. We don't need slow cars! */
 function checkMoving() {
-	if (avgSpeed < 3) {
+	if (avgSpeed < 4) {
 		restartSimulation();
 	}
 }
