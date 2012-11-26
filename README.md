@@ -10,8 +10,7 @@ Connected with the developed neural network there is a genetic algorithm based o
 Requirements
 ------------
 
-The entire work has been made using the Unity3D Game Engine 4.0 (http://www.unity3d.com), Blender (http://www.blender.org) and
-Google Sketchup (http://sketchup.google.com/)
+The entire work has been made using the Unity3D Game Engine 4.0 (http://www.unity3d.com) and Google Sketchup (http://sketchup.google.com/).
 The reason of this choice is that we needed a fast way to represent 3D models with physical properties, but there are no 
 limitations to develop projects like this in other ways, languages or systems.
 

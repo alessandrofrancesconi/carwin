@@ -32,9 +32,6 @@ var MaxEngineRPM : float = 3000.0;
 var MinEngineRPM : float = 1000.0;
 private var EngineRPM : float = 0.0;
 
-// check if we are in learning mode or in show mode
-public var isLearning : boolean;
-
 // These variables are three precious components for the car self-driving system:
 private var brainComponent : Component; // Contains the neural network data structure
 private var geneticComponent : Component; // Contains the genetic algorithm data structure
@@ -48,6 +45,10 @@ private var totDistance : float; // the distance made by the car
 private var lastPosition : Vector3; // the position of the car in the current frame
 private var totFrames : int; // frames passed from the simulation start (used for avgSpeed)
 private var totSpeed : int; // (used for avgSpeed)
+
+// learning mode : the NN uses the weights computed by the genetic algorithm each frame
+// not-learning mode : weights are readed from an external file and remain static
+private var isLearning : boolean;
 
 function Start () {
 	// Alter the center of mass to make the car more stable. I'ts less likely to flip this way.
@@ -66,6 +67,8 @@ function Start () {
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
+	isLearning = true;
+	
 	startSimulation();
 }
 
@@ -83,11 +86,6 @@ function startSimulation()	{
 		// set the NeuralNetwork weights by copying them from current chromosome
 		brainComponent.brain.SetTotalWeights(
 			geneticComponent.population.GetCurrentChromosome().GetWeights()
-		);
-	}	else	{
-		// set the NeuralNetwork weights by copying them from current chromosome
-		brainComponent.brain.SetTotalWeights(
-			geneticComponent.population.restoreBestChromosome()
 		);
 	}
 	
@@ -113,6 +111,7 @@ function updateFitness () {
 	geneticComponent.population.SetCurrentCromosomeFitness(currentFitness);
 }
 
+/* At every frame the neural network outputs its computed results to move the car */
 function FixedUpdate () {
 	// This is to limith the maximum speed of the car, adjusting the drag probably isn't the best way of doing it,
 	// but it's easy, and it doesn't interfere with the physics processing.
@@ -148,31 +147,29 @@ function FixedUpdate () {
 	totSpeed += Mathf.RoundToInt(rigidbody.velocity.magnitude);
 	avgSpeed = totSpeed / ++totFrames;
 	
-	// update the fitness value
-	updateFitness();
+	if (isLearning) {
+		// update the fitness value
+		updateFitness();
+	}
+}
+
+/* Update function is used only to catch keyboard inputs */
+function Update() {
+	if (Input.GetKeyDown(KeyCode.S)) {
+		geneticComponent.population.SaveBestChromosome();
+	}
 	
-	// when the user presses SPACE, the current population is saved in an external file
-    if (Input.GetKeyDown ("space"))	{
-    	var data : byte[] = geneticComponent.population.save();
-    	var path = ".";
-    	var  newPath = System.IO.Path.Combine(path, "savedPopulations");
-    	// Create the subfolder
-        System.IO.Directory.CreateDirectory(newPath);
-		
-        var newFileName = "population"+DateTime.Now.ToString("yyyyMMddHHmm")+".pop";
-
-        // Combine the new file name with the path
-        newPath = System.IO.Path.Combine(newPath, newFileName);
-
-        // Create the file and write to it.
-        if (!System.IO.File.Exists(newPath))
-        {
-            var fs = System.IO.File.Create(newPath);
-            for (var i = 0; i < data.length; i++) {
-				fs.WriteByte(data[i]);
-			}
-        }
-    }
+	if (Input.GetKeyDown(KeyCode.R)) {
+		if (isLearning) {
+			var restoredWeights : float[] = geneticComponent.population.RestoreBestChromosome();
+			brainComponent.brain.SetTotalWeights(restoredWeights);
+			isLearning = false;
+		}
+		else {
+			isLearning = true;
+		}
+		startSimulation();
+	}
 }
 
 /*	This function checks if the car is moving with an acceptable avg speed.
@@ -216,15 +213,13 @@ function ShiftGears() {
 /*	if the car collides (with a wall), we save the fitness of current chromosome 
 	and restart the simulation */
 function OnCollisionStay(collision : Collision) {
-	if(isLearning)	{
-		// for now the fitness mode is always set to STRICT, that mean that the simulation restarts on EVERY KIND of 
-		// collision. With a lazy mode, instead, we could ignore some "light" collisions and continue
-		if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
-			for (var contact : ContactPoint in collision.contacts) {
-				if (contact.normal != Vector3.up)	{
-					restartSimulation();
-					break;
-				}
+	// for now the fitness mode is always set to STRICT, that mean that the simulation restarts on EVERY KIND of 
+	// collision. With a lazy mode, instead, we could ignore some "light" collisions and continue
+	if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
+		for (var contact : ContactPoint in collision.contacts) {
+			if (contact.normal != Vector3.up)	{
+				restartSimulation();
+				break;
 			}
 		}
 	}
@@ -232,42 +227,45 @@ function OnCollisionStay(collision : Collision) {
 
 /*	reset simulation, but with new chromosomes */
 function restartSimulation() {
-	
-	Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
-		+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness());
-	
-	// save the best chromosome ever
-	geneticComponent.population.saveBestChromosome();
-	
-	// go throught the next chromosome
-	geneticComponent.population.SetNextChromosome();
-	
-	if(geneticComponent.population.IsLastChromosome())	{
-		// tried all the chromosomes, start a new generation.
-		Debug.Log("Generation tested, start new one");
-		geneticComponent.population.NewGeneration();
+	if (isLearning) {
+		Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
+			+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness());
+		
+		// save the best chromosome ever
+		//geneticComponent.population.saveBestChromosome();
+		
+		// go throught the next chromosome
+		geneticComponent.population.SetNextChromosome();
+		
+		if(geneticComponent.population.IsLastChromosome())	{
+			// tried all the chromosomes, start a new generation.
+			Debug.Log("Generation tested, start new one");
+			geneticComponent.population.NewGeneration();
+		}
 	}
-	
 	startSimulation();
 }
 
 /* Print some statistics during each run */
 function OnGUI () {
+	var style : GUIStyle = new GUIStyle();
+
 	var boxWidth = 180;
 	GUI.Box (Rect (Screen.width-boxWidth, 0, boxWidth,  Screen.height), "STATS");
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 80, boxWidth - 10, 20), "Speed : " + Mathf.RoundToInt(rigidbody.velocity.magnitude));
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 100, boxWidth - 10, 20), "Avg.Speed : " + avgSpeed);
 	GUI.Label (Rect (Screen.width-boxWidth + 10, 120, boxWidth - 10, 20), "Distance : " + totDistance);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestFitness);
-	GUI.Label (Rect (Screen.width-boxWidth + 10, 180, boxWidth - 10, 20), "in generation: " + (geneticComponent.population.bestPopulation+1) + " of " + (geneticComponent.population.currentPopulation+1));
 	
-	/*GUI.Label (Rect (Screen.width-boxWidth + 10, 140, boxWidth - 10, 20), "Weights: ");
-	var space = 0;
-	for (weight in geneticComponent.population.GetCurrentChromosome().GetWeights())
-	{
-		GUI.Label (Rect (Screen.width-boxWidth + 10, 160 + space, boxWidth - 10, 20), " " + 
-			weight);
-		space += 20;
-	}*/
-	
+	style.fontStyle = FontStyle.Bold;
+	if (isLearning) {
+		GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestFitness);
+		GUI.Label (Rect (Screen.width-boxWidth + 10, 180, boxWidth - 10, 20), "in generation: " + (geneticComponent.population.bestPopulation+1) + " of " + (geneticComponent.population.currentPopulation+1));
+		
+		style.normal.textColor = Color.red;
+		GUI.Label (Rect (10, Screen.height - 30, boxWidth - 10, 20), "LEARNING MODE", style);
+	}
+	else {
+		style.normal.textColor = Color.green;
+		GUI.Label (Rect (10, Screen.height - 30, boxWidth - 10, 20), "SHOW MODE", style);
+	}
 }

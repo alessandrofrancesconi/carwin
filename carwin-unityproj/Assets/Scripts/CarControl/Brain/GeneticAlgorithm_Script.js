@@ -9,15 +9,13 @@ public var ga_FitnessMode : int = parseInt(GA_FITNESS_MODE.STRICT); //.... but f
 
 public var population : Population;
 
-/* This is a set of chromosomes, and this is sorted (chromosomes with higher fitness
-is the firsts, chromosomes with lower fitness is the lasts. */
+/* This is a set of chromosomes */
 public class Population	{
 	private var chromosomes : Chromosome[];
 	private var currentChromosome : int;
 	public var currentPopulation : int;
 	
-	/* will contain the current best chromosome */
-	public var bestChromosome : Population.Chromosome;
+	public var bestChromosome : Population.Chromosome; // will contain the overall best chromosome
 	
 	// keep track of best fitness and population in which it is found
 	public var bestFitness : int;
@@ -37,39 +35,25 @@ public class Population	{
 		this.bestPopulation = 0;
 	}
 	
-	/* save current population to a binary object */
-	function save() : byte[]
-	{
-		var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-		var mem = new System.IO.MemoryStream();
-		formatter.Serialize(mem, this);
-		return mem.GetBuffer();
-	}
-	
-	/* save the best chromosome */
-	function saveBestChromosome() : void
-	{
-		var lines:String[] = new String[this.bestChromosome.GetWeights().length + 2];	// one for fitness, two for num of weights
-		lines[0] = this.bestChromosome.GetWeights().length.ToString();
-		var cEl = 1;
-		for (var elem in this.bestChromosome.GetWeights())	{
-			lines[cEl] = elem.ToString();
-			cEl ++;
+	/* save the best chromosome by writing all its weights on "bestchr.txt" */
+	function SaveBestChromosome() : void {
+		var lines : String[] = new String[this.bestChromosome.GetWeights().length];
+		var i : int = 0;
+		for (weight in this.bestChromosome.GetWeights())	{
+			lines[i] = weight.ToString();
+			i++;
 		}
-		lines[this.bestChromosome.GetWeights().length] = this.bestChromosome.GetFitness().ToString();
 		System.IO.File.WriteAllLines("bestchr.txt", lines);
 	}
 	
-	/* restore the best chromosome in the car */
-	function restoreBestChromosome() : float[]
-	{
-		//var lines : String[] = new String[this.bestChromosome.GetWeights().length + 1];
+	/* returns the best chromosome by reading all its weights from "bestchr.txt" */
+	function RestoreBestChromosome() : float[] {
 		var lines : String[] = System.IO.File.ReadAllLines("bestchr.txt");
-		var elemsF : float[] = new float[System.Convert.ToUInt32(lines[0])];
-		for (var i = 1; i < System.Convert.ToUInt32(lines[0])+1; i++)	{
-			elemsF[i-1] = float.Parse(lines[i-1]);
+		var weights : float[] = new float[lines.length];
+		for (var i = 0; i < lines.length; i++)	{
+			weights[i] = parseFloat(lines[i]);
 		}
-		return elemsF;
+		return weights;
 	}
 	
 	/* Create a new population according to the fitness of the old chromosomes. */
@@ -81,7 +65,7 @@ public class Population	{
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
 			// new chromosomes are chosen with the Roulette Wheel method...
-			var firstChrom = this.RouletteWheel(); // ...but we can force to have at least one instance of the best chromosome with 'this.GetBestChromosome()'
+			var firstChrom = this.RouletteWheel(); // ...but we can force to have at least one instance of the best chromosome with 'this.bestChromosome'
 			var secChrom = this.RouletteWheel();
 			
 			if(Random.value <= crossOverProb) {
@@ -139,23 +123,16 @@ public class Population	{
 	function SetCurrentCromosomeFitness(fit : int) {
 		this.chromosomes[this.currentChromosome].SetFitness(fit);
 		if (fit > this.bestFitness)	{
+			// set the current as the best chromosome
 			this.bestFitness = fit;
 			this.bestPopulation = this.currentPopulation;
-			// set the current as the best chromosome
 			this.bestChromosome = this.chromosomes[this.currentChromosome];
 		}
 	}
 	
-	/* return the best chromosome of the current population */
+	/* return the overall best chromosome */
 	function GetBestChromosome() : Chromosome {
-		var best : Chromosome = this.chromosomes[0];
-		for (chromosome in this.chromosomes) {
-			if (chromosome.GetFitness() > best.GetFitness()) {
-				best = chromosome;
-			}
-		}
-		
-		return best;
+		return this.bestChromosome;
 	}
 	
 	/*	Creates 2 new chromosomes (offspring) by crossovering 2 input chromosomes 
