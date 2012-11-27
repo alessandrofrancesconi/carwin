@@ -31,19 +31,18 @@ public class NeuralNetwork {
 	var outputs : float[];
 	
 	/* build and initialize the entire neural network */
-	function NeuralNetwork() {
+	function NeuralNetwork(neuronsPerHidden : int) {
 		var HIDDEN_LAYERS_COUNT : int = 1; // 1 hidden layer is enough...
-		var NEURONS_PER_HIDDEN : int = 24; // # neurons in each hidden layer. A greater number means more flexibility on output values
 		
 		this.inputs = new float[parseInt(NN_INPUT.COUNT)];
 		
 		this.hiddenLayers = new NN_Layer[HIDDEN_LAYERS_COUNT]; 
 		for (layer in hiddenLayers) {
-			layer = new NN_Layer(NEURONS_PER_HIDDEN, parseInt(NN_INPUT.COUNT)); 
+			layer = new NN_Layer(neuronsPerHidden, parseInt(NN_INPUT.COUNT)); 
 		}
 		
 		this.outputs = new float[parseInt(NN_OUTPUT.COUNT)];
-		this.outputLayer = new NN_Layer(parseInt(NN_OUTPUT.COUNT), NEURONS_PER_HIDDEN);
+		this.outputLayer = new NN_Layer(parseInt(NN_OUTPUT.COUNT), neuronsPerHidden);
 	}
 	
 	/* Update is called after every new input set. It calculates the content of the output vector */

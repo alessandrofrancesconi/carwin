@@ -59,11 +59,11 @@ function Start () {
 	// initialize all the main components
 	
 	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
-	brainComponent.brain = new NeuralNetwork();
+	brainComponent.brain = new NeuralNetwork(24); // Neurons in each hidden layer. A greater number means more flexibility on output values
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
 	// we create a population of 14 chromosomes, each one with the total number of weights of the neural network
-	geneticComponent.population = new Population(14, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(12, brainComponent.brain.GetTotalWeights().length);
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
@@ -107,15 +107,14 @@ function updateFitness () {
 	var currentFitness : int;
 	
 	currentFitness = Mathf.RoundToInt(totDistance * avgSpeed);
-	//currentFitness = Mathf.RoundToInt(totDistance*3 + avgSpeed*2);
 	geneticComponent.population.SetCurrentCromosomeFitness(currentFitness);
 }
 
-/* At every frame the neural network outputs its computed results to move the car */
+/* Every frame the neural network outputs its computed results to move the car */
 function FixedUpdate () {
 	// This is to limith the maximum speed of the car, adjusting the drag probably isn't the best way of doing it,
 	// but it's easy, and it doesn't interfere with the physics processing.
-	rigidbody.drag = rigidbody.velocity.magnitude / 50;
+	rigidbody.drag = rigidbody.velocity.magnitude / 80;
 	
 	// Compute the engine RPM based on the average RPM of the two wheels, then call the shift gear function
 	EngineRPM = (FrontLeftWheel.rpm + FrontRightWheel.rpm)/2 * GearRatio[CurrentGear];
@@ -175,7 +174,7 @@ function Update() {
 /*	This function checks if the car is moving with an acceptable avg speed.
 	If not, this simulation restarts. We don't need slow cars! */
 function checkMoving() {
-	if (avgSpeed < 4) {
+	if (avgSpeed < 8) {
 		restartSimulation();
 	}
 }
@@ -230,9 +229,6 @@ function restartSimulation() {
 	if (isLearning) {
 		Debug.Log("Current chromosome: " + geneticComponent.population.GetCurrentChromosomeID() 
 			+ " with fitness " + geneticComponent.population.GetCurrentCromosomeFitness());
-		
-		// save the best chromosome ever
-		//geneticComponent.population.saveBestChromosome();
 		
 		// go throught the next chromosome
 		geneticComponent.population.SetNextChromosome();
