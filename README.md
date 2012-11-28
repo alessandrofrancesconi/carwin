@@ -21,6 +21,7 @@ Usage
 Note that you must install the Unity3D Web Player to run it.
 * For hackers, go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.
 The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!
+* Read presentation.pdf for more informations
 
 Authors
 -------
@@ -30,3 +31,11 @@ This project belongs to the Artificial Intelligence course.
 
 * Buzzoni Marco (marco.buzzoni2@studio.unibo.it)
 * Francesconi Alessandro (alessand.francescon2@studio.unibo.it)
+
+References
+----------
+
+* The original car's model and movement system was made by  Ansetfdrew Gotow (maxwelldoggums@gmail.com - http://www.gotow.net/andrew/blog/?page_id=78)
+* Neural Network with Genetic Algorithm implementation is based on two main resources:
+	* http://www.ai-junkie.com/ann/evolved/nnt1.html
+	* http://www.obitko.com/tutorials/genetic-algorithms/index.php
