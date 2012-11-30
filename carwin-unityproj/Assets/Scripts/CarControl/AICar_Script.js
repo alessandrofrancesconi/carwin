@@ -254,7 +254,7 @@ function OnGUI () {
 	
 	style.fontStyle = FontStyle.Bold;
 	if (isLearning) {
-		GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestFitness);
+		GUI.Label (Rect (Screen.width-boxWidth + 10, 160, boxWidth - 10, 20), "Best fitness: " + geneticComponent.population.bestChromosome.GetFitness());
 		GUI.Label (Rect (Screen.width-boxWidth + 10, 180, boxWidth - 10, 20), "in generation: " + (geneticComponent.population.bestPopulation+1) + " of " + (geneticComponent.population.currentPopulation+1));
 		
 		style.normal.textColor = Color.red;

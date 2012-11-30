@@ -15,10 +15,8 @@ public class Population	{
 	private var currentChromosome : int;
 	public var currentPopulation : int;
 	
+	// keep track of overall best chromosome and population
 	public var bestChromosome : Population.Chromosome; // will contain the overall best chromosome
-	
-	// keep track of best fitness and population in which it is found
-	public var bestFitness : int;
 	public var bestPopulation : int;
 	
 	/* Create a population of cCount chromosomes, each one with wCount elements (weights). */
@@ -31,7 +29,7 @@ public class Population	{
 		
 		this.currentPopulation = 0;
 		this.currentChromosome = 0;
-		this.bestFitness = 0;
+		this.bestChromosome = this.chromosomes[0];
 		this.bestPopulation = 0;
 	}
 	
@@ -122,9 +120,8 @@ public class Population	{
 	
 	function SetCurrentCromosomeFitness(fit : int) {
 		this.chromosomes[this.currentChromosome].SetFitness(fit);
-		if (fit > this.bestFitness)	{
+		if (fit > this.bestChromosome.GetFitness())	{
 			// set the current as the best chromosome
-			this.bestFitness = fit;
 			this.bestPopulation = this.currentPopulation;
 			this.bestChromosome = this.chromosomes[this.currentChromosome];
 		}
