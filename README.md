@@ -17,11 +17,15 @@ limitations to develop projects like this in other ways, languages or systems.
 Usage 
 -----
 
-* To test the final version of Carwin just go into carwin-build folder and open the html file. 
-Note that you must install the Unity3D Web Player to run it.
-* For hackers, go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.
-The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!
-* Read presentation.pdf for more informations
+Go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.  
+The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!  
+Read presentation.pdf for more informations
+
+During the simulation you can use the following keyboard shortcuts:
+* `S` to save the overall best chromosome in an external file "bestchr.txt"
+* `R` to restore the saved best chromosome and apply it to the current simulation (enters in SHOW MODE)
+* Numbers from `1` to `4` to change the track
+* `UP-arrow` to enlarge the camera view
 
 Authors
 -------

@@ -37,6 +37,8 @@ private var brainComponent : Component; // Contains the neural network data stru
 private var geneticComponent : Component; // Contains the genetic algorithm data structure
 private var rayComponent : Component; // Contains the collection of rays casted from the car
 
+public var tracks : Component[]; // keep tracks stored (for real time changing)
+
 private var startPoint : GameObject; // This will store the startPoint of the active track
 
 public var inputs : float[]; // Input vector, built every frame, that will be transmitted to the neural network
@@ -169,6 +171,38 @@ function Update() {
 		}
 		startSimulation();
 	}
+	
+	if (Input.GetKeyDown(KeyCode.Alpha1)) {
+		changeTrack(0);
+	}
+	
+	if (Input.GetKeyDown(KeyCode.Alpha2)) {
+		changeTrack(1);
+	}
+	
+	if (Input.GetKeyDown(KeyCode.Alpha3)) {
+		changeTrack(2);
+	}
+	
+	if (Input.GetKeyDown(KeyCode.Alpha4)) {
+		changeTrack(3);
+	}
+}
+
+/* activates the given track */
+function changeTrack(id) {
+	var i : int  = 0;
+	for (track in tracks) {
+		if (i == id) {
+			track.active = true;
+		}
+		else {
+			track.active = false;
+		}
+		i++;
+	}
+	
+	startSimulation();
 }
 
 /*	This function checks if the car is moving with an acceptable avg speed.
