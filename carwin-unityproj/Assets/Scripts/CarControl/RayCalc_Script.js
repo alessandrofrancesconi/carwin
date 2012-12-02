@@ -1,6 +1,7 @@
 #pragma strict
 
 public var rayLength : int = 50;
+public var drawRays : boolean = true;
 
 public var turnAngle : int;
 
