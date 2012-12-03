@@ -19,7 +19,7 @@ Usage
 
 Go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.  
 The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!  
-Read __presentation.pdf__ for more informations
+Read __carwin-buzzoni_francesconi2012.pdf__ for more informations
 
 During the simulation you can use the following keyboard shortcuts:
 * `S` to save the overall best chromosome in an external file "bestchr.txt"
