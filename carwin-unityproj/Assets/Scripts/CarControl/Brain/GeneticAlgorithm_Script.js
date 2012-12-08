@@ -20,11 +20,11 @@ public class Population	{
 	public var bestPopulation : int;
 	
 	/* Create a population of cCount chromosomes, each one with wCount elements (weights). */
-	function Population(cCount : int, wCount : int)	{
+	function Population(cCount : int, wCount : int, randObj : System.Random)	{
 		this.chromosomes = new Chromosome[cCount];
 		
 		for(chromosome in this.chromosomes) {
-			chromosome = new Chromosome(wCount);
+			chromosome = new Chromosome(wCount, randObj);
 		}
 		
 		this.currentPopulation = 0;
@@ -33,6 +33,7 @@ public class Population	{
 		this.bestPopulation = 0;
 	}
 	
+	#if !UNITY_WEBPLAYER
 	/* save the best chromosome by writing all its weights on "bestchr.txt" */
 	function SaveBestChromosome() : void {
 		var lines : String[] = new String[this.bestChromosome.GetWeights().length];
@@ -53,22 +54,25 @@ public class Population	{
 		}
 		return weights;
 	}
+	#endif
 	
 	/* Create a new population according to the fitness of the old chromosomes. */
-	function NewGeneration() {
+	function NewGeneration(randObj : System.Random) {
 		this.currentPopulation++;
 		this.ResetCurrentChromosome();
 		var newChromosomes : Chromosome[] = new Chromosome[this.chromosomes.length];
 		var crossOverProb : float = 0.85f; // high probability to have a crossover
+		
+		//var randObj : System.Random = new System.Random();
 		for(var i = 0; i < chromosomes.length; i=i+2)
 		{
 			// new chromosomes are chosen with the Roulette Wheel method...
-			var firstChrom = this.RouletteWheel(); // ...but we can force to have at least one instance of the best chromosome with 'this.bestChromosome'
-			var secChrom = this.RouletteWheel();
+			var firstChrom = this.RouletteWheel(randObj); // ...but we can force to have at least one instance of the best chromosome with 'this.bestChromosome'
+			var secChrom = this.RouletteWheel(randObj);
 			
-			if(Random.value <= crossOverProb) {
+			if(randObj.NextDouble() <= crossOverProb) {
 				// do a crossover
-				var chromosomePair : Chromosome[] = this.CrossOver(firstChrom, secChrom);
+				var chromosomePair : Chromosome[] = this.CrossOver(firstChrom, secChrom, randObj);
 				newChromosomes[i] = chromosomePair[0];
 				newChromosomes[i+1] = chromosomePair[1];
 				Debug.Log ("Crossover!");
@@ -79,8 +83,8 @@ public class Population	{
 			}
 			
 			// in both cases, try a mutation of each chromosome's weights with a low probability
-			newChromosomes[i] = this.Mutate(newChromosomes[i]);
-			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1]);
+			newChromosomes[i] = this.Mutate(newChromosomes[i], randObj);
+			newChromosomes[i+1] = this.Mutate(newChromosomes[i+1], randObj);
 		}
 		
 		this.chromosomes = newChromosomes;
@@ -134,9 +138,9 @@ public class Population	{
 	
 	/*	Creates 2 new chromosomes (offspring) by crossovering 2 input chromosomes 
 		'firstChrom' is like the dad... 'secChrom' it's like the mum! */
-	function CrossOver(firstChrom : Chromosome, secChrom : Chromosome): Chromosome[] {
+	function CrossOver(firstChrom : Chromosome, secChrom : Chromosome, randObj : System.Random): Chromosome[] {
 		var totWeights : int = firstChrom.GetWeights().length;
-		var crossingPoint : int = Random.Range(0, totWeights - 1); // choose a random crossing point
+		var crossingPoint : int = randObj.Next(0, totWeights - 1); // choose a random crossing point
 		
 		// crossover on weights
 		var weights1 : float[] = new float[totWeights]; // first "baby"
@@ -165,7 +169,7 @@ public class Population	{
 	    - [Select] Generate random number from interval (0,S) -> r.
 	    - [Loop] Go through the population and sum fitnesses from 0 to S -> s. 
 	    When the sum s is greater than r, stop and return the chromosome where you are. */
-	private function RouletteWheel() : Chromosome {
+	private function RouletteWheel(randObj : System.Random) : Chromosome {
 		var fitnessSum : int = 0;
 		var randomNum : int;
 		var selectedChrom : int = 0;
@@ -174,7 +178,7 @@ public class Population	{
 			fitnessSum += chromosome.GetFitness();
 		}
 		
-		randomNum = Mathf.RoundToInt(Random.Range(0, fitnessSum));
+		randomNum = randObj.Next(0, fitnessSum);
 		fitnessSum = 0;
 		for(chromosome in this.chromosomes) {
 			fitnessSum += chromosome.GetFitness();
@@ -190,11 +194,11 @@ public class Population	{
 	}
 	
 	/* Perform a random mutation of a chromosome. */
-	function Mutate(chromosome : Chromosome) : Chromosome	{
-		var mutationProb : float = 0.008f; // each weight has a low probability to be mutated		
+	function Mutate(chromosome : Chromosome, randObj : System.Random) : Chromosome	{
+		var mutationProb : float = 0.008f; // each weight has a low probability to be mutated
 		for (weight in chromosome.GetWeights()) {
-			if (Random.value <= mutationProb) {
-				weight += Random.Range(-0.1, 0.1);
+			if (randObj.NextDouble() <= mutationProb) {
+				weight += (randObj.NextDouble() * 2.0) - 1.0;
 				Debug.Log ("Weight mutated!");
 			}
 		}
@@ -208,11 +212,11 @@ public class Population	{
 		private var fitness : int;
 		private var weights : float[];
 		
-		function Chromosome(wCount : int) {
+		function Chromosome(wCount : int, randObj : System.Random) {
 			this.fitness = 0;
 			this.weights = new float[wCount];
 			for (weight in this.weights) {
-				weight = Random.Range(-1.0, 1.0); // inital random value
+				weight = (randObj.NextDouble() * 2.0) - 1.0; // inital random value from -1.0 to 1.0
 			}
 		}
 		

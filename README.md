@@ -17,15 +17,19 @@ limitations to develop projects like this in other ways, languages or systems.
 Usage 
 -----
 
-Go in carwin-unityproj folder and open Assets/defaultScene.unity to have the full control of this project under Unity3D.  
-The source files you are probably interested to are in Assets/Scripts/CarControl folder. Enjoy!  
-Read __carwin-buzzoni_francesconi2012.pdf__ for more informations
+For non-Unity users, you can still try Carwin by opening carwin-build/carwin-build.html sample page. You only have to install the Unity Web Player.
+
+For hackers equipped with Unity3D 4.0, open carwin-unityproj/Assets/defaultScene.unity to have full control of this project.  
+The source files you are probably interested to are in Assets/Scripts/CarControl folder. 
+Read __carwin-buzzoni_francesconi2012.pdf__ for more informations. Enjoy!
 
 During the simulation you can use the following keyboard shortcuts:
-* `S` to save the overall best chromosome in an external file "bestchr.txt"
-* `R` to restore the saved best chromosome and apply it to the current simulation (enters in SHOW MODE)
 * Numbers from `1` to `4` to change the track
 * `UP-arrow` to enlarge the camera view
+
+The following commands are available only through the Unity3D editor:
+* `S` to save the overall best chromosome in an external file "bestchr.txt"
+* `R` to restore the saved best chromosome and apply it to the current simulation (enters in SHOW MODE)
 
 Authors
 -------

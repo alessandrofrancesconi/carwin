@@ -37,7 +37,7 @@ private var brainComponent : Component; // Contains the neural network data stru
 private var geneticComponent : Component; // Contains the genetic algorithm data structure
 private var rayComponent : Component; // Contains the collection of rays casted from the car
 
-public var tracks : Component[]; // keep tracks stored (for real time changing)
+public var tracks : GameObject[]; // keep tracks stored (for real time changing)
 
 private var startPoint : GameObject; // This will store the startPoint of the active track
 
@@ -52,7 +52,11 @@ private var totSpeed : int; // (used for avgSpeed)
 // not-learning mode : weights are readed from an external file and remain static
 private var isLearning : boolean;
 
+private var randObj : System.Random;
+
 function Start () {
+	randObj = new System.Random();
+
 	// Alter the center of mass to make the car more stable. I'ts less likely to flip this way.
 	rigidbody.centerOfMass.y = -1.5;
 	
@@ -61,11 +65,11 @@ function Start () {
 	// initialize all the main components
 	
 	brainComponent = GameObject.Find("Brain").GetComponent(NeuralNet_Script);
-	brainComponent.brain = new NeuralNetwork(24); // Neurons in each hidden layer. A greater number means more flexibility on output values
+	brainComponent.brain = new NeuralNetwork(24, randObj); // Neurons in each hidden layer. A greater number means more flexibility on output values
 	
 	geneticComponent = GameObject.Find("Brain").GetComponent(GeneticAlgorithm_Script);
 	// we create a population of 14 chromosomes, each one with the total number of weights of the neural network
-	geneticComponent.population = new Population(12, brainComponent.brain.GetTotalWeights().length);
+	geneticComponent.population = new Population(12, brainComponent.brain.GetTotalWeights().length, randObj);
 	
 	rayComponent = GameObject.Find("RayTracing").GetComponent(RayCalc_Script);
 	
@@ -156,9 +160,12 @@ function FixedUpdate () {
 
 /* Update function is used only to catch keyboard inputs */
 function Update() {	
-	if (Input.GetKeyDown(KeyCode.S)) {
-		geneticComponent.population.SaveBestChromosome();
-	}
+
+	// NOTE: save and restore functionalities are not available in Web Player
+	#if !UNITY_WEBPLAYER
+		if (Input.GetKeyDown(KeyCode.S)) {
+			geneticComponent.population.SaveBestChromosome();
+		}
 	
 	if (Input.GetKeyDown(KeyCode.R)) {
 		if (isLearning) {
@@ -171,6 +178,7 @@ function Update() {
 		}
 		startSimulation();
 	}
+	#endif
 	
 	if (Input.GetKeyDown(KeyCode.Alpha1)) {
 		changeTrack(0);
@@ -194,10 +202,10 @@ function changeTrack(id) {
 	var i : int  = 0;
 	for (track in tracks) {
 		if (i == id) {
-			track.active = true;
+			track.SetActive(true);
 		}
 		else {
-			track.active = false;
+			track.SetActive(false);
 		}
 		i++;
 	}
@@ -250,7 +258,7 @@ function OnCollisionStay(collision : Collision) {
 	// collision. With a lazy mode, instead, we could ignore some "light" collisions and continue
 	if (geneticComponent.ga_FitnessMode == parseInt(GA_FITNESS_MODE.STRICT)) {
 		for (var contact : ContactPoint in collision.contacts) {
-			if (contact.normal != Vector3.up)	{
+			if (contact.normal != Vector3.up && contact.normal != Vector3.up*(-1)) {
 				restartSimulation();
 				break;
 			}
@@ -270,7 +278,7 @@ function restartSimulation() {
 		if(geneticComponent.population.IsLastChromosome())	{
 			// tried all the chromosomes, start a new generation.
 			Debug.Log("Generation tested, start new one");
-			geneticComponent.population.NewGeneration();
+			geneticComponent.population.NewGeneration(randObj);
 		}
 	}
 	startSimulation();

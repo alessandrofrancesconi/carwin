@@ -31,18 +31,18 @@ public class NeuralNetwork {
 	var outputs : float[];
 	
 	/* build and initialize the entire neural network */
-	function NeuralNetwork(neuronsPerHidden : int) {
+	function NeuralNetwork(neuronsPerHidden : int, randObj : System.Random) {
 		var HIDDEN_LAYERS_COUNT : int = 1; // 1 hidden layer is enough...
 		
 		this.inputs = new float[parseInt(NN_INPUT.COUNT)];
 		
 		this.hiddenLayers = new NN_Layer[HIDDEN_LAYERS_COUNT]; 
 		for (layer in hiddenLayers) {
-			layer = new NN_Layer(neuronsPerHidden, parseInt(NN_INPUT.COUNT)); 
+			layer = new NN_Layer(neuronsPerHidden, parseInt(NN_INPUT.COUNT), randObj); 
 		}
 		
 		this.outputs = new float[parseInt(NN_OUTPUT.COUNT)];
-		this.outputLayer = new NN_Layer(parseInt(NN_OUTPUT.COUNT), neuronsPerHidden);
+		this.outputLayer = new NN_Layer(parseInt(NN_OUTPUT.COUNT), neuronsPerHidden, randObj);
 	}
 	
 	/* Update is called after every new input set. It calculates the content of the output vector */
@@ -128,10 +128,10 @@ public class NeuralNetwork {
 	class NN_Layer {
 		var neurons : NN_Neuron[];
 		
-		function NN_Layer(neuronsCount : int, inputCount : int) {
+		function NN_Layer(neuronsCount : int, inputCount : int, randObj : System.Random) {
 			this.neurons = new NN_Neuron[neuronsCount];
 			for (neuron in this.neurons) {
-				neuron = new NN_Neuron(inputCount); // each neuron has 'inputCount' inputs
+				neuron = new NN_Neuron(inputCount, randObj); // each neuron has 'inputCount' inputs
 			}
 		}
 		
@@ -175,11 +175,11 @@ public class NeuralNetwork {
 			private var inputs : float[];
 			private var weights : float[];
 			
-			function NN_Neuron(inputCount : int) {
+			function NN_Neuron(inputCount : int, randObj : System.Random) {
 				this.inputs = new float[inputCount];
 				this.weights = new float[inputCount + 1]; // There will be an extra weight for the BIAS
 				for (weight in this.weights) {
-					weight = Random.Range(-1.0, 1.0);
+					weight = (randObj.NextDouble() * 2.0) - 1.0; // inital random value from -1.0 to 1.0
 				}
 			}
 			
